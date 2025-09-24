@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "features": {
+  },
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    "boost-asio",
+    "boost-process",
+    "cli11",
+    "fmt",
+    "re2",
+    "spdlog"
+  ]
+}
