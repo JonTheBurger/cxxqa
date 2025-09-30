@@ -1,4 +1,3 @@
-#include <filesystem>
 #include <memory>
 #include <string_view>
 
@@ -18,7 +17,6 @@
 namespace cxxqa {
 
 namespace asio = boost::asio;
-namespace fs   = std::filesystem;
 namespace proc = boost::process::v2;
 namespace sys  = boost::system;
 
@@ -89,6 +87,16 @@ Process::Process(std::string_view executable)
 
 Process::~Process() = default;
 
+auto Process::exe() const noexcept -> std::string_view
+{
+  return _self->exe;
+}
+
+auto Process::args() const noexcept -> const std::vector<std::string>&
+{
+  return _self->args;
+}
+
 auto Process::with_args(std::vector<std::string> arguments) -> Process&
 {
   _self->args = std::move(arguments);
@@ -136,8 +144,6 @@ auto Process::execute() -> int32_t
   _self->async_read(_self->std_out);
   _self->async_read(_self->std_err);
   _self->ctx.run();
-
-  fmt::println("Done");
 
   return child.exit_code();
 }

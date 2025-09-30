@@ -12,9 +12,9 @@
 
 #include <cxxqa/config.hpp>
 
+namespace {
 namespace fs = std::filesystem;
 
-namespace {
 class ColorFormatter final : public CLI::Formatter {
   using super = CLI::Formatter;
 

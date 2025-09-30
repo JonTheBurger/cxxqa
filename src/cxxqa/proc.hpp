@@ -5,14 +5,18 @@
 #include <string>
 #include <vector>
 
+#include <fmt/format.h>
+
 namespace cxxqa {
 
 class Process {
 public:
-  using on_output = void(*)(void* context, std::string_view line);
+  using on_output = void (*)(void* context, std::string_view lines);
 
   explicit Process(std::string_view executable);
   ~Process();
+  auto exe() const noexcept -> std::string_view;
+  auto args() const noexcept -> const std::vector<std::string>&;
   auto with_args(std::vector<std::string> arguments) -> Process&;
   auto with_env(std::flat_map<std::string, std::string> environment) -> Process&;
   auto with_pwd(std::string directory) -> Process&;
@@ -26,3 +30,22 @@ private:
 };
 
 }  // namespace cxxqa
+
+template <>
+struct fmt::formatter<cxxqa::Process> {
+  constexpr auto parse(fmt::format_parse_context& ctx)
+  {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(const cxxqa::Process& self, FormatContext& ctx) const
+  {
+    auto out = fmt::format_to(ctx.out(), "\"{}\"", self.exe());
+    for (const auto& arg : self.args())
+    {
+      out = fmt::format_to(out, " \"{}\"", arg);
+    }
+    return out;
+  }
+};

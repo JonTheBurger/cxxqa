@@ -1,61 +1,63 @@
-#include <boost/asio.hpp>
-#include <boost/asio/readable_pipe.hpp>
-#include <boost/process.hpp>
-#include <boost/process/v2/process.hpp>
-#include <boost/process/v2/environment.hpp>
+#include <algorithm>
+#include <ranges>
+#include <vector>
+
 #include <fmt/base.h>
 #include <fmt/format.h>
 
 #include <cxxqa/git.hpp>
-
-namespace asio = boost::asio;
-namespace proc = boost::process;
-namespace sys = boost::system;
+#include <cxxqa/proc.hpp>
 
 namespace cxxqa {
 
-Git::Git()
-{
-  // auto git = proc::search_path("git");
-  // if (!git.empty())
-  // {
-  //   _exe = git;
-  // }
-  _exe = "/usr/bin/git";
-}
+Git::Git() = default;
 
-auto Git::ls_files(LsFiles mode) -> std::vector<std::string>
+auto Git::get_repo_files(const std::vector<std::string>& extensions) -> std::vector<std::string>
 {
-  asio::io_context ctx;
-  asio::readable_pipe stdout_pipe{ctx};
-  proc::process git(ctx, _exe, {"ls-files"}, proc::process_stdio{{}, stdout_pipe, {}});
-
+  Process                  git("git");
   std::vector<std::string> files;
 
-  while (git.running()) {
-      std::string line;
-      line.reserve(1024);
-      sys::error_code ec;
-      asio::read_until(stdout_pipe, asio::dynamic_buffer(line), '\n', ec);
-
-      if (!ec && !line.empty()) {
-          // Process the line (remove trailing newline if needed)
-          if (!line.empty() && line.back() == '\n') {
-              line.pop_back();
-          }
-          fmt::println("{}", line);
-          line.clear();
+  // Get unstaged files & files in index
+  std::vector<std::string> args{
+    "ls-files", "--deduplicate", "--other", "--cached", "--exclude-standard", "--"
+  };
+  args.append_range(extensions);
+  git.with_args(std::move(args));
+  git.on_stdout(
+    [](void* pfiles, std::string_view lines) {
+      auto* files = static_cast<std::vector<std::string>*>(pfiles);
+      for (const auto& range : std::views::split(lines, '\n'))
+      {
+        files->emplace_back(range.begin(), range.end());
       }
-  }
+    },
+    &files
+  );
+  git.execute();
 
-  // auto git = proc::child(_exe, proc::std_out > pipe_stream);
+  // Remove any deleted files
+  std::vector<std::string> dargs{
+    "ls-files", "--deleted", "--"
+  };
+  dargs.append_range(extensions);
+  git.with_args(std::move(dargs));
+  git.on_stdout(
+    [](void* pfiles, std::string_view lines) {
+      auto* files = static_cast<std::vector<std::string>*>(pfiles);
+      for (const auto& range : std::views::split(lines, '\n'))
+      {
+        auto file = std::string_view{ range };
+        auto it   = std::ranges::lower_bound(*files, file);
+        if (*it == file)
+        {
+          files->erase(it);
+        }
+      }
+    },
+    &files
+  );
+  git.execute();
 
-  // std::string    line;
-
-  // while (pipe_stream && std::getline(pipe_stream, line) && !line.empty())
-  // {
-  //   fmt::println("{}", line);
-  // }
   return files;
 }
 
@@ -77,7 +79,7 @@ auto Git::set_exe(std::string exe) noexcept -> bool
 
 auto Git::set_pwd(std::string pwd) noexcept -> bool
 {
-  _pwd = std::move(_pwd);
+  _pwd = std::move(pwd);
   return true;
 }
 

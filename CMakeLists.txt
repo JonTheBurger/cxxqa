@@ -11,6 +11,8 @@ add_executable(cxxqa)
 target_sources(cxxqa
   PRIVATE
     src/main.cpp
+    src/cxxqa/app.cpp
+    src/cxxqa/compile_command.cpp
     src/cxxqa/config.cpp
     src/cxxqa/exception.cpp
     src/cxxqa/git.cpp
@@ -31,28 +33,5 @@ target_link_libraries(cxxqa
     spdlog::spdlog
 )
 target_compile_features(cxxqa PRIVATE cxx_std_23)
-
-# add_executable(test)
-# target_sources(test
-#   PRIVATE
-#     test/test.cpp
-#     src/cxxqa/config.cpp
-#     src/cxxqa/git.cpp
-#   PUBLIC
-#     FILE_SET HEADERS
-#     BASE_DIRS
-#       src
-#     FILES
-# )
-# target_link_libraries(test
-#   PRIVATE
-#     Boost::asio
-#     Boost::process
-#     CLI11::CLI11
-#     fmt::fmt
-#     re2::re2
-#     spdlog::spdlog
-# )
-# target_compile_features(test PRIVATE cxx_std_23)
 
 install(TARGETS cxxqa)

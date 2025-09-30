@@ -9,19 +9,12 @@ class Git {
 public:
   Git();
 
-  enum LsFiles : uint8_t {
-    LS_DEFAULT  = 0U,
-    LS_CACHED   = 1U << 0U,
-    LS_DELETED  = 1U << 1U,
-    LS_MODIFIED = 1U << 2U,
-    LS_OTHER    = 1U << 3U,
-    LS_IGNORED  = 1U << 4U,
-    LS_STAGED   = 1U << 5U,
-    LS_UNMERGED = 1U << 6U,
-    LS_KILLED   = 1U << 7U,
+  enum class Submodules {
+    IGNORE  = 0,
+    RECURSE = 1,
   };
 
-  auto ls_files(LsFiles mode = LS_DEFAULT) -> std::vector<std::string>;
+  auto get_repo_files(const std::vector<std::string>& include) -> std::vector<std::string>;
 
   auto exe() const noexcept -> const std::string&;
   auto pwd() const noexcept -> const std::string&;

@@ -11,6 +11,9 @@ enum class Error : std::uint32_t {
 
   PROCESS = 100,
   PROCESS_NOT_FOUND = 101,
+
+  PARSE = 200,
+  PARSE_BAD_COMPILE_COMMANDS = 202,
 };
 
 class Exception : public std::exception {
