@@ -5,11 +5,11 @@
 #include <fmt/base.h>
 #include <fmt/format.h>
 
-#include <cxxqa/git.hpp>
-#include <cxxqa/proc.hpp>
+#include <cxxqa/tool/git.hpp>
+#include <cxxqa/util/proc.hpp>
 
 namespace cxxqa {
-
+// TODO: don't re-create Process
 Git::Git() = default;
 
 auto Git::get_repo_files(const std::vector<std::string>& extensions) -> std::vector<std::string>
@@ -59,6 +59,20 @@ auto Git::get_repo_files(const std::vector<std::string>& extensions) -> std::vec
   git.execute();
 
   return files;
+}
+
+auto Git::root_dir() noexcept -> std::string
+{
+  auto git = Process{"git"};
+  git.with_args({"rev-parse", "--show-toplevel"});
+  std::string dir;
+  git.on_stdout([](void* ptr, std::string_view lines){
+    auto* dir = static_cast<std::string*>(ptr);
+    *dir = lines;
+  }, static_cast<void*>(&dir));
+  git.execute();
+
+  return dir;
 }
 
 auto Git::exe() const noexcept -> const std::string&

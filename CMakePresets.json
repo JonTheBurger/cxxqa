@@ -30,6 +30,15 @@
         "BUILD_TESTING": "OFF",
         "CMAKE_BUILD_TYPE": "Debug"
       }
+    },
+    {
+      "name": "asan",
+      "inherits": ["debug"],
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": "-fsanitize=address,leak,undefined -fno-omit-frame-pointer",
+        "CMAKE_CXX_FLAGS": "-fsanitize=address,leak,undefined -fno-omit-frame-pointer",
+        "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address,leak,undefined -fno-omit-frame-pointer"
+      }
     }
   ],
   "buildPresets": [

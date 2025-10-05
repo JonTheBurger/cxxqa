@@ -1,17 +1,17 @@
 #include <cstdio>
 #include <exception>
-#include <cxxqa/app.hpp>
+#include <cxxqa/core/app.hpp>
 
 auto main(int argc, char** argv) -> int
 {
   try
   {
-    cxxqa::exec(argc, argv);
+    return cxxqa::App{argc, argv}.exec();
   }
   catch (const std::exception& ex)
   {
     std::puts(ex.what());
   }
 
-  return 0;
+  return 1;
 }

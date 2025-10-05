@@ -1,6 +1,9 @@
 #include <memory>
 #include <string_view>
 
+#include <au/au.hh>
+#include <au/quantity.hh>
+#include <au/units/bytes.hh>
 #include <boost/asio/error.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/read_until.hpp>
@@ -11,34 +14,24 @@
 #include <boost/system/detail/error_code.hpp>
 #include <spdlog/spdlog.h>
 
-#include <cxxqa/exception.hpp>
-#include <cxxqa/proc.hpp>
+#include <cxxqa/core/exception.hpp>
+#include <cxxqa/util/proc.hpp>
 
 namespace cxxqa {
 
 namespace asio = boost::asio;
 namespace proc = boost::process::v2;
 namespace sys  = boost::system;
+namespace unit = au;
 
-static constexpr char SEP =
-#if _WIN32
-  '\\';
-#else
-  '/';
-#endif
-
-static constexpr char PATH_SEP =
-#if _WIN32
-  ';';
-#else
-  ':';
-#endif
+using KiB = unit::Kibi<unit::Bytes>;
 
 struct OutPipe {
   explicit OutPipe(asio::io_context& ctx)
     : pipe{ ctx }
   {
-    buffer.reserve(4096);
+    auto cap = unit::make_quantity<KiB, uint32_t>(4);
+    buffer.reserve(cap.in(unit::bytes));
   }
 
   asio::readable_pipe pipe;                 // NOLINT(misc-non-private-member-variables-in-classes)
@@ -70,6 +63,7 @@ struct Process::Impl {
 
         auto end  = out.buffer.rfind('\n');
         auto view = std::string_view{ out.buffer.c_str(), end };
+        // TODO: log the process & output
         out.callback(out.context, view);
 
         out.buffer = out.buffer.substr(end + sizeof('\n'));

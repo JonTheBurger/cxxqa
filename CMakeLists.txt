@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.28...4.1)
 project(cxxqa)
 
-find_package(Boost REQUIRED COMPONENTS asio process)
+find_package(Au REQUIRED)
+find_package(Boost REQUIRED COMPONENTS asio filesystem process)
 find_package(CLI11 REQUIRED)
 find_package(fmt REQUIRED)
 find_package(re2 REQUIRED)
@@ -10,13 +11,17 @@ find_package(spdlog REQUIRED)
 add_executable(cxxqa)
 target_sources(cxxqa
   PRIVATE
+    src/cxxqa/core/app.cpp
+    src/cxxqa/core/app.hpp
+    src/cxxqa/core/config.cpp
+    src/cxxqa/core/config.hpp
+    src/cxxqa/core/exception.cpp
+    src/cxxqa/core/exception.hpp
+    src/cxxqa/parse/compile_command.cpp
+    src/cxxqa/parse/compile_command.hpp
+    src/cxxqa/tool/git.cpp
+    src/cxxqa/util/proc.cpp
     src/main.cpp
-    src/cxxqa/app.cpp
-    src/cxxqa/compile_command.cpp
-    src/cxxqa/config.cpp
-    src/cxxqa/exception.cpp
-    src/cxxqa/git.cpp
-    src/cxxqa/proc.cpp
   PUBLIC
     FILE_SET HEADERS
     BASE_DIRS
@@ -25,6 +30,7 @@ target_sources(cxxqa
 )
 target_link_libraries(cxxqa
   PRIVATE
+    Au::au
     Boost::asio
     Boost::process
     CLI11::CLI11

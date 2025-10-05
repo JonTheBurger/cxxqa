@@ -9,6 +9,9 @@
 
 namespace cxxqa {
 
+// TODO: probably switch to std::function or move_only_function
+// TODO: enable gathering stdout/stderr
+// TODO: line buffer
 class Process {
 public:
   using on_output = void (*)(void* context, std::string_view lines);
@@ -22,6 +25,7 @@ public:
   auto with_pwd(std::string directory) -> Process&;
   auto on_stdout(on_output callback, void* context = nullptr) -> void;
   auto on_stderr(on_output callback, void* context = nullptr) -> void;
+
   auto execute() -> int32_t;
 
 private:
