@@ -21,6 +21,7 @@
 namespace {
 namespace fs  = std::filesystem;
 namespace log = spdlog;
+namespace view = std::views;
 
 // TODO: configure logger
 
@@ -181,7 +182,7 @@ auto Config::from_cli(int argc, char** argv) -> Config
 
   CLI::App* inspect = cli.add_subcommand("inspect");
   inspect->description("Inspect the cxxqa application for troubleshooting");
-  inspect->add_flag("--config-values", self._troubleshoot.config_values, "Show resolved configuration");
+  inspect->add_flag("--config", self._troubleshoot.config, "Show resolved configuration");
   inspect->add_flag("--config-file", self._troubleshoot.config_file, "Show config file directory candidates");
   inspect->add_flag("--files", self._troubleshoot.files, "Show files included and excluded from project");
 
@@ -202,6 +203,10 @@ auto Config::from_cli(int argc, char** argv) -> Config
     {
       log::set_level(log::level::info);
     }
+    else
+    {
+      log::set_level(log::level::warn);
+    }
 
     // Check for extra arguments
     auto extra = cli.remaining(true);
@@ -213,7 +218,7 @@ auto Config::from_cli(int argc, char** argv) -> Config
     // Handle inspect sub-command
     if (inspect->parsed())
     {
-      if (self._troubleshoot.config_values)
+      if (self._troubleshoot.config)
       {
         fmt::println("{}", cli.config_to_str(true));
       }

@@ -20,7 +20,7 @@ public:
   auto verbosity() const noexcept -> unsigned;
 
   struct Troubleshoot {
-    bool config_values;
+    bool config;
     bool config_file;
     bool files;
   };

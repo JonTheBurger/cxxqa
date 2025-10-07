@@ -14,9 +14,10 @@ namespace cxxqa {
 // TODO: line buffer
 class Process {
 public:
-  using on_output = void (*)(void* context, std::string_view lines);
+  using on_output = void (*)(void* context, std::string_view chunk);
 
   explicit Process(std::string_view executable);
+  Process(std::string_view executable, std::vector<std::string> arguments);
   ~Process();
   auto exe() const noexcept -> std::string_view;
   auto args() const noexcept -> const std::vector<std::string>&;
@@ -26,7 +27,27 @@ public:
   auto on_stdout(on_output callback, void* context = nullptr) -> void;
   auto on_stderr(on_output callback, void* context = nullptr) -> void;
 
-  auto execute() -> int32_t;
+  struct ExitCode {
+    int32_t exit_code;
+  };
+
+  auto run() -> int32_t;
+
+  struct Lines {
+    int32_t                  exit_code{};
+    std::vector<std::string> stdout;
+    std::vector<std::string> stderr;
+  };
+
+  auto run_lines() -> Lines;
+
+  struct Text {
+    int32_t     exit_code{};
+    std::string stdout;
+    std::string stderr;
+  };
+
+  auto run_text() -> Text;
 
 private:
   struct Impl;

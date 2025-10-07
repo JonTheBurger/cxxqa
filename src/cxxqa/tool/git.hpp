@@ -15,7 +15,7 @@ public:
   };
 
   // TODO: make these std::filesystem::paths
-  auto get_repo_files(const std::vector<std::string>& include) -> std::vector<std::string>;
+  auto get_repo_files(const std::vector<std::string>& patterns) -> std::vector<std::string>;
   auto root_dir() noexcept -> std::string;
 
   auto exe() const noexcept -> const std::string&;

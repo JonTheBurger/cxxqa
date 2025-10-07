@@ -4,6 +4,8 @@
 
 #include <fmt/base.h>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
+#include <spdlog/spdlog.h>
 
 #include <cxxqa/tool/git.hpp>
 #include <cxxqa/util/proc.hpp>
@@ -12,7 +14,7 @@ namespace cxxqa {
 // TODO: don't re-create Process
 Git::Git() = default;
 
-auto Git::get_repo_files(const std::vector<std::string>& extensions) -> std::vector<std::string>
+auto Git::get_repo_files(const std::vector<std::string>& patterns) -> std::vector<std::string>
 {
   Process                  git("git");
   std::vector<std::string> files;
@@ -21,7 +23,7 @@ auto Git::get_repo_files(const std::vector<std::string>& extensions) -> std::vec
   std::vector<std::string> args{
     "ls-files", "--deduplicate", "--other", "--cached", "--exclude-standard", "--"
   };
-  args.append_range(extensions);
+  args.append_range(patterns);
   git.with_args(std::move(args));
   git.on_stdout(
     [](void* pfiles, std::string_view lines) {
@@ -33,13 +35,15 @@ auto Git::get_repo_files(const std::vector<std::string>& extensions) -> std::vec
     },
     &files
   );
-  git.execute();
+  git.run();
+
+  spdlog::info("{}", files);
 
   // Remove any deleted files
   std::vector<std::string> dargs{
     "ls-files", "--deleted", "--"
   };
-  dargs.append_range(extensions);
+  dargs.append_range(patterns);
   git.with_args(std::move(dargs));
   git.on_stdout(
     [](void* pfiles, std::string_view lines) {
@@ -56,7 +60,7 @@ auto Git::get_repo_files(const std::vector<std::string>& extensions) -> std::vec
     },
     &files
   );
-  git.execute();
+  git.run();
 
   return files;
 }
@@ -70,7 +74,7 @@ auto Git::root_dir() noexcept -> std::string
     auto* dir = static_cast<std::string*>(ptr);
     *dir = lines;
   }, static_cast<void*>(&dir));
-  git.execute();
+  git.run();
 
   return dir;
 }

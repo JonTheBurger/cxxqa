@@ -1,5 +1,7 @@
 #include <memory>
+#include <ranges>
 #include <string_view>
+#include <vector>
 
 #include <au/au.hh>
 #include <au/quantity.hh>
@@ -10,6 +12,7 @@
 #include <boost/asio/readable_pipe.hpp>
 #include <boost/process/v2/environment.hpp>
 #include <boost/process/v2/process.hpp>
+#include <boost/process/v2/start_dir.hpp>
 #include <boost/process/v2/stdio.hpp>
 #include <boost/system/detail/error_code.hpp>
 #include <spdlog/spdlog.h>
@@ -17,9 +20,29 @@
 #include <cxxqa/core/exception.hpp>
 #include <cxxqa/util/proc.hpp>
 
+namespace {
+
+void collect_lines(void* ptr, std::string_view chunk)
+{
+  auto* lines = static_cast<std::vector<std::string>*>(ptr);
+  for (const auto& range : std::views::split(chunk, '\n'))
+  {
+    lines->emplace_back(range.begin(), range.end());
+  }
+}
+
+void collect_text(void* ptr, std::string_view chunk)
+{
+  auto* text = static_cast<std::string*>(ptr);
+  text->append(chunk);
+}
+
+}  // namespace
+
 namespace cxxqa {
 
 namespace asio = boost::asio;
+namespace log  = spdlog;
 namespace proc = boost::process::v2;
 namespace sys  = boost::system;
 namespace unit = au;
@@ -58,12 +81,13 @@ struct Process::Impl {
       [this, &out](const sys::error_code& err, std::size_t) {
         if (err || err == asio::error::eof || err == asio::error::broken_pipe)
         {
+          log::trace("EOF");
           return;
         }
 
         auto end  = out.buffer.rfind('\n');
         auto view = std::string_view{ out.buffer.c_str(), end };
-        // TODO: log the process & output
+        log::trace("{}", view);
         out.callback(out.context, view);
 
         out.buffer = out.buffer.substr(end + sizeof('\n'));
@@ -77,6 +101,13 @@ Process::Process(std::string_view executable)
   : _self{ std::make_unique<Process::Impl>() }
 {
   _self->exe = proc::environment::find_executable(executable);
+  _self->pwd = std::filesystem::current_path().string();
+}
+
+Process::Process(std::string_view executable, std::vector<std::string> arguments)
+  : Process(executable)
+{
+  this->with_args(std::move(arguments));
 }
 
 Process::~Process() = default;
@@ -121,8 +152,9 @@ auto Process::on_stderr(on_output callback, void* context) -> void
   _self->std_err.context  = context;
 }
 
-auto Process::execute() -> int32_t
+auto Process::run() -> int32_t
 {
+  log::debug("{} {}", _self->exe, _self->args | std::views::join_with(' ') | std::ranges::to<std::string>());
   proc::process child(
     _self->ctx,
     _self->exe,
@@ -132,13 +164,35 @@ auto Process::execute() -> int32_t
       .out = _self->std_out.pipe,
       .err = _self->std_err.pipe,
     },
+    proc::process_start_dir(_self->pwd),
     proc::process_environment(_self->env)
   );
 
   _self->async_read(_self->std_out);
   _self->async_read(_self->std_err);
   _self->ctx.run();
+  child.wait();
 
+  log::trace("exit: {}", child.exit_code());
   return child.exit_code();
 }
+
+auto Process::run_lines() -> Lines
+{
+  Lines lines;
+  on_stdout(collect_lines, &lines.stdout);
+  on_stderr(collect_lines, &lines.stderr);
+  lines.exit_code = run();
+  return lines;
+}
+
+auto Process::run_text() -> Text
+{
+  Text text;
+  on_stdout(collect_text, &text.stdout);
+  on_stderr(collect_text, &text.stderr);
+  text.exit_code = run();
+  return text;
+}
+
 }  // namespace cxxqa

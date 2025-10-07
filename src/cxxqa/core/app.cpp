@@ -8,6 +8,7 @@
 #include <fmt/ranges.h>
 #include <fmt/std.h>
 #include <re2/re2.h>
+#include <spdlog/spdlog.h>
 
 #include <cxxqa/core/app.hpp>
 #include <cxxqa/core/config.hpp>
@@ -31,9 +32,10 @@ std::vector<std::string> to_vector(int argc, char** argv)
 
 namespace cxxqa {
 
-namespace fs   = std::filesystem;
+namespace fs    = std::filesystem;
+namespace log   = spdlog;
 namespace range = std::ranges;
-namespace view = std::views;
+namespace view  = std::views;
 
 struct App::Impl {
   std::vector<std::string> args;
@@ -95,20 +97,14 @@ auto App::exec() -> int
   _self->files = git.get_repo_files(_self->config.include());
   if (_self->config.troubleshoot().files)
   {
-    for (const auto& file : _self->files)
-    {
-      fmt::println("{}", file);
-    }
-    fmt::println("");
+    fmt::println("{}", fmt::join(_self->files, "\n"));
   }
 
   // fmt::println("{}", git.root_dir());
   auto commands =
-    view::filter(
-      CompileCommand::from_file("build/debug/compile_commands.json"), [this](const auto& cmd) {
-        return !_self->config.exclude_matches(cmd.file);
-      }
-    ) |
+    CompileCommand::from_file("build/debug/compile_commands.json") | view::filter([this](const auto& cmd) {
+      return !_self->config.exclude_matches(cmd.file);
+    }) |
     view::transform([this](const auto& cmd) {
       return cmd.file_as_path(&project_dir());
     }) |
