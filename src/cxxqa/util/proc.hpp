@@ -10,8 +10,6 @@
 namespace cxxqa {
 
 // TODO: probably switch to std::function or move_only_function
-// TODO: enable gathering stdout/stderr
-// TODO: line buffer
 class Process {
 public:
   using on_output = void (*)(void* context, std::string_view chunk);
