@@ -8,6 +8,7 @@ Checks:
   - '*'
   - -altera-struct-pack-align
   - -altera-unroll-loops
+  - -cppcoreguidelines-avoid-do-while
   - -fuchsia-default-arguments-calls
   - -fuchsia-default-arguments-declarations
   - -fuchsia-trailing-return

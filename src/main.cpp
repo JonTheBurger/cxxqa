@@ -18,7 +18,7 @@ auto main(int argc, char** argv) -> int
 
   fmt::println("{}", sizeof(sys::result<int>{}));
 
-  auto e = std::expected<int, std::error_code>{};
+  // auto e = std::expected<int, std::error_code>{};
   // fmt::println("{}", sizeof(e));
 
   // try
