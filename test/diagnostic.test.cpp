@@ -15,3 +15,12 @@ SCENARIO("HelloLexy", "[example]")
     }
   }
 }
+
+SCENARIO("Parser 2", "[example]")
+{
+  std::string_view message = R"(/home/jon/Projects/cxx/cxxqa/src/cxxqa/parse/diagnostic.cpp:10:8: warning: variable ‘parse’ set but not used [-Wunused-but-set-variable]
+   10 |   auto parse = Parser(str);
+      |        ^~~~~
+)";
+
+}

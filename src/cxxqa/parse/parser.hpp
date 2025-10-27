@@ -6,6 +6,8 @@
 #include <optional>
 #include <string_view>
 
+#include <cxxqa/util/flags.hpp>
+
 namespace cxxqa {
 
 constexpr auto is_letter(char chr) noexcept -> bool
@@ -48,30 +50,35 @@ constexpr auto accept_any_char(char /*chr*/) noexcept -> bool
   return true;
 }
 
-using check_char = bool(&)(char);
+using check_char = bool (&)(char);
 
 class Parser {
 public:
   explicit Parser(std::string_view source);
 
-  enum Options {
+  enum Options : uint8_t {
     DEFAULT = 0,
     /// Move the cursor back if the parser does not find a match
-    BACKTRACK = 1 << 0,
+    BACKTRACK = 1U << 0U,
     /// Allow EOF instead of the specified delimiter
-    TO_EOF = 1 << 1,
-    /// Parse until the delimiter is found, excluding the delimiter
-    UNTIL = 1 << 2,
+    TO_EOF = 1U << 1U,
+    /// Allow end-of-line instead of the specified delimiter
+    TO_CRLF = 1U << 2U,
     /// Parse until the delimiter is found, and pass it
-    PASS = 1 << 3,
+    PASS = 1U << 3U,
+    /// Parse until the delimiter is found, and include it
+    INCLUDE = 1U << 4U,
     /// Skip spaces and tabs before parsing
-    LTRIM = 1 << 4,
+    LTRIM = 1U << 5U,
     /// Skip spaces and tabs after parsing
-    RTRIM = 1 << 5,
+    RTRIM = 1U << 6U,
   };
 
   /** Do not progress the parser if a match was not found */
   auto or_backtrack() noexcept -> Parser&;
+
+  /** Allow "\r\n" or "\n" instead of the specified delimiter */
+  auto to_newline() noexcept -> Parser&;
 
   /** Allow EOF instead of the specified delimiter */
   auto to_eof() noexcept -> Parser&;
@@ -80,10 +87,10 @@ public:
   auto until(std::string_view delimiter) noexcept -> Parser&;
 
   /** Parse string until a delimiter is found, excluding the delimiter, then move past the delimiter */
-  auto until_passing(std::string_view delimiter) noexcept -> Parser&;
+  auto until_and_past(std::string_view delimiter) noexcept -> Parser&;
 
   /** Parse string until a delimiter is found, include the delimiter. */
-  auto through(std::string_view delimiter) noexcept -> Parser&;
+  auto until_and_including(std::string_view delimiter) noexcept -> Parser&;
 
   /** Skip any spaces/tabs found before parsing. */
   auto and_ltrim() noexcept -> Parser&;
@@ -94,11 +101,19 @@ public:
   /** Skip any spaces/tabs found before or after parsing. */
   auto and_trim() noexcept -> Parser&;
 
-  auto consume_uint(uint8_t radix = 10) -> std::optional<uint32_t>;
+  auto consume_uint() -> std::optional<uint32_t>;
 
   auto consume_int(uint8_t radix = 10) -> std::optional<int32_t>;
 
   auto consume_str(check_char accept_char = accept_any_char) -> std::optional<std::string_view>;
+
+  /** Move the cursor forward `n` chars */
+  auto skip(uint32_t n) noexcept -> void;
+
+  /** Move the cursor forward while accept_char is true */
+  auto skip_while(check_char skip_when) noexcept -> void;
+
+  auto peek() const noexcept -> char;
 
   auto pos() const noexcept -> size_t;
 
@@ -107,12 +122,15 @@ public:
   auto delimiter() const noexcept -> char;
 
 private:
-  auto consume_options() noexcept -> void;
+  auto reset_options() noexcept -> void;
+  auto skip_space_tab() noexcept -> void;
 
   std::string_view _source;
-  std::string_view _delimiter{};
+  std::string_view _delimiter;
   size_t           _pos{ 0 };
-  size_t           _options{ Options::DEFAULT };
+  Options          _options{ Options::DEFAULT };
 };
 
 }  // namespace cxxqa
+
+CXXQA_DECLARE_FLAGS(cxxqa::Parser::Options);

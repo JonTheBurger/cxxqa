@@ -44,7 +44,7 @@ target_link_libraries(cxxqa.core
     re2::re2
     spdlog::spdlog
 )
-target_compile_features(cxxqa.core PRIVATE cxx_std_23)
+target_compile_features(cxxqa.core PUBLIC cxx_std_23)
 
 add_executable(cxxqa src/main.cpp)
 target_link_libraries(cxxqa PRIVATE cxxqa.core)

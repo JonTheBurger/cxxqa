@@ -1,26 +1,6 @@
+#include <optional>
+#include <string_view>
 #include <cxxqa/parse/parser.hpp>
-
-namespace {
-
-constexpr auto skip_space_tab(const char* iter, const char* const end) noexcept -> const char*
-{
-  while (iter <= end && (*iter == ' ' || *iter == '\t'))
-  {
-    ++iter;
-  }
-  return iter;
-}
-
-constexpr auto skip_space_tab(std::string_view str, size_t pos) noexcept -> size_t
-{
-  while (pos < str.size() && (str[pos] == ' ' || str[pos] == '\t'))
-  {
-    ++pos;
-  }
-  return pos;
-}
-
-}  // namespace
 
 namespace cxxqa {
 
@@ -35,6 +15,12 @@ auto Parser::or_backtrack() noexcept -> Parser&
   return *this;
 }
 
+auto Parser::to_newline() noexcept -> Parser&
+{
+  _options |= TO_CRLF;
+  return *this;
+}
+
 auto Parser::to_eof() noexcept -> Parser&
 {
   _options |= TO_EOF;
@@ -43,21 +29,22 @@ auto Parser::to_eof() noexcept -> Parser&
 
 auto Parser::until(std::string_view delimiter) noexcept -> Parser&
 {
-  _options |= UNTIL;
   _delimiter = delimiter;
   return *this;
 }
 
-auto Parser::until_passing(std::string_view delimiter) noexcept -> Parser&
+auto Parser::until_and_past(std::string_view delimiter) noexcept -> Parser&
 {
   _options |= PASS;
+  _options &= ~INCLUDE;
   return until(delimiter);
 }
 
-auto Parser::through(std::string_view delimiter) noexcept -> Parser&
+auto Parser::until_and_including(std::string_view delimiter) noexcept -> Parser&
 {
-  _delimiter = delimiter;
-  return *this;
+  _options |= INCLUDE;
+  _options &= ~PASS;
+  return until(delimiter);
 }
 
 auto Parser::and_ltrim() noexcept -> Parser&
@@ -79,14 +66,25 @@ auto Parser::and_trim() noexcept -> Parser&
   return *this;
 }
 
-auto Parser::consume_uint(uint8_t radix) -> std::optional<uint32_t>
+auto Parser::consume_uint() -> std::optional<uint32_t>
 {
-  consume_options();
-  return {};
+  if (auto result = consume_str(is_decimal); result)
+  {
+    uint32_t value{};
+    auto     str = *result;
+
+    auto [ptr, err] = std::from_chars(str.data(), str.data() + str.size(), value);
+    if (err == std::errc{} && ptr == str.data() + str.size())
+    {
+      return value;
+    }
+  }
+  return std::nullopt;
 }
 
 auto Parser::consume_int(uint8_t radix) -> std::optional<int32_t>
 {
+  // TODO: We don't accept '-'
   check_char accept_digit = [radix]() -> check_char {
     switch (radix)
     {
@@ -122,70 +120,99 @@ auto Parser::consume_str(check_char accept_char) -> std::optional<std::string_vi
     return std::nullopt;
   }
 
-  bool found = false;
   if (_delimiter.empty())
   {
     _delimiter = { "\0", 1 };
-    found = true;
   }
-
-  const char* it = _source.begin() + _pos;
 
   if ((_options & Options::LTRIM) != 0U)
   {
-    it = skip_space_tab(it, _source.end());
+    skip_space_tab();
   }
 
-  while (it < _source.end())
+  const auto reset  = _pos;
+  size_t     start = _pos;
+  size_t     end   = _pos;
+  bool       found  = true;
+  while (_pos < _source.size())
   {
-    if (*it == _delimiter[0])
+    if (string().starts_with(_delimiter))
     {
-      found = true;
-      if ((_options & Options::UNTIL) == 0U)
+      end = _pos;
+      if ((_options & Options::PASS) != 0U)
       {
-        ++it;
+        _pos += _delimiter.length();
+      }
+      else if ((_options & Options::INCLUDE) != 0U)
+      {
+        _pos += _delimiter.length();
+        end += _delimiter.length();
       }
       break;
     }
 
-    if (accept_char(*it))
+    if ((_options & Options::TO_CRLF) != 0U)
     {
-      ++it;
+      if (peek() == '\n')
+      {
+        end = _pos;
+        ++_pos;
+        break;
+      }
+
+      if (peek() == '\r')
+      {
+        end = _pos;
+        ++_pos;
+        if (peek() == '\n')
+        {
+          ++_pos;
+        }
+        break;
+      }
+    }
+
+    if (accept_char(peek()))
+    {
+      ++_pos;
+      ++end;
     }
     else
     {
       break;
-    }
-  }
-
-  const auto start = _pos;
-  _pos             = it - _source.begin();
-  auto str         = std::string_view{};
-
-  if (found)
-  {
-    str = _source.substr(start, _pos - start);
-    if ((_options & PASS) != 0U)
-    {
-      ++_pos;
+      found = false;
     }
   }
 
   if (!found && ((_options & BACKTRACK) != 0U))
   {
-    _pos = start;
+    _pos = reset;
   }
   else if ((_options & RTRIM) != 0U)
   {
-    _pos = skip_space_tab(_source, _pos);
+    skip_space_tab();
   }
 
-  consume_options();
-  if (!found)
+  reset_options();
+  return (found) ? (std::optional{ _source.substr(start, end - start) }) : (std::nullopt);
+}
+
+auto Parser::skip(uint32_t n) noexcept -> void
+{
+  _pos = std::min(_pos + n, _source.size());
+}
+
+auto Parser::skip_while(check_char skip_when) noexcept -> void
+{
+  while (_pos < _source.size() && skip_when(_source[_pos]))
   {
-    return std::nullopt;
+    ++_pos;
   }
-  return str;
+}
+
+auto Parser::peek() const noexcept -> char
+{
+  return (_pos < _source.size()) ? _source[_pos] : '\0';
 }
 
 auto Parser::pos() const noexcept -> size_t
@@ -198,10 +225,18 @@ auto Parser::string() const noexcept -> std::string_view
   return _source.substr(_pos);
 }
 
-auto Parser::consume_options() noexcept -> void
+auto Parser::reset_options() noexcept -> void
 {
   _delimiter = {};
   _options   = { Options::DEFAULT };
+}
+
+auto Parser::skip_space_tab() noexcept -> void
+{
+  while (_pos < _source.size() && (_source[_pos] == ' ' || _source[_pos] == '\t'))
+  {
+    ++_pos;
+  }
 }
 
 }  // namespace cxxqa

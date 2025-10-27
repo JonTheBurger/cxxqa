@@ -11,6 +11,7 @@ Checks:
   - -cppcoreguidelines-avoid-do-while
   - -fuchsia-default-arguments-calls
   - -fuchsia-default-arguments-declarations
+  - -fuchsia-overloaded-operator
   - -fuchsia-trailing-return
   - -llvmlibc-*
   - -modernize-use-nodiscard

@@ -1,0 +1,16 @@
+set(VCPKG_TARGET_TRIPLET "project")
+set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_BINARY_DIR}/tools/vcpkg/triplets")
+
+# Generate triplet file
+if(CMAKE_BINARY_DIR AND NOT EXISTS "${VCPKG_OVERLAY_TRIPLETS}/${VCPKG_TARGET_TRIPLET}.cmake")
+  make_directory("${VCPKG_OVERLAY_TRIPLETS}")
+  file(
+      CONFIGURE
+      OUTPUT "${VCPKG_OVERLAY_TRIPLETS}/${VCPKG_TARGET_TRIPLET}.cmake"
+      CONTENT
+          [=[
+  set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE "${CMAKE_CURRENT_LIST_FILE}")
+  include("${VCPKG_CHAINLOAD_TOOLCHAIN_FILE}")
+  ]=]
+  )
+endif()
