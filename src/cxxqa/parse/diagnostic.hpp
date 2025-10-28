@@ -13,8 +13,9 @@ struct Diagnostic {
   std::string file;
   uint32_t    line;
   uint32_t    column;
-  std::string message;
   std::string severity;
+  std::string message;
+  std::string category;
   std::string source;
 
   static auto from_string(std::string_view str) -> std::optional<Diagnostic>;

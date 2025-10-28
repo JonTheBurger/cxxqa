@@ -133,10 +133,22 @@ SCENARIO("parse.skip...", "[skip]")  // NOLINT
 
 SCENARIO("parse.to_newline", "[to_newline]") // NOLINT
 {
-  auto parse = cxxqa::Parser("Hello\r\nWorld\nAnd\rGoodbye");
+  auto parse = cxxqa::Parser("Hello\r\nWorld\nAnd\rGoodbye\n\n");
 
   auto str = parse.to_newline().consume_str();
   REQUIRE("Hello" == str);
+
+  str = parse.to_newline().consume_str();
+  REQUIRE("World" == str);
+
+  str = parse.to_newline().consume_str();
+  REQUIRE("And" == str);
+
+  str = parse.to_newline().consume_str();
+  REQUIRE("Goodbye" == str);
+
+  str = parse.to_newline().consume_str();
+  REQUIRE("" == str);
 }
 
 SCENARIO("Parser", "[example]")  // NOLINT
@@ -162,12 +174,4 @@ SCENARIO("Parser", "[example]")  // NOLINT
   str = parse.to_eof().consume_str();
   REQUIRE("mismatching types: 'int' and 'const char *'" == str);
   REQUIRE(parse.string() == "");
-}
-
-SCENARIO("Parser2", "[example2]")
-{
-  std::string_view message = R"(/home/jon/Projects/cxx/cxxqa/src/cxxqa/parse/diagnostic.cpp:10:8: warning: variable ‘parse’ set but not used [-Wunused-but-set-variable]
-   10 |   auto parse = Parser(str);
-      |        ^~~~~
-)";
 }
