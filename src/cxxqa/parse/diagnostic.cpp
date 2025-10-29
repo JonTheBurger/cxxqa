@@ -4,7 +4,7 @@
 #include <cxxqa/parse/parser.hpp>
 
 namespace cxxqa {
-auto Diagnostic::from_string(std::string_view str) -> std::optional<Diagnostic>
+auto Diagnostic::consume_from_string(std::string_view& str) -> std::optional<Diagnostic>
 {
   using namespace std::string_view_literals;
   auto result = std::optional<Diagnostic>{ std::nullopt };
@@ -45,11 +45,16 @@ auto Diagnostic::from_string(std::string_view str) -> std::optional<Diagnostic>
     }
   }
 
-  if (auto severity = parse.until_and_past(":").or_backtrack().and_rtrim().consume_str(); severity)
+  auto pos = parse.pos();
+  if (auto severity = parse.until_and_past(":").and_rtrim().consume_str(); severity)
   {
     if ((*severity == "warning") || (*severity == "error") || (*severity == "note") || (*severity == "fatal error") || (*severity == "internal compiler error") || (*severity == "sorry, unimplemented"))
     {
       diagnostic.severity = *severity;
+    }
+    else
+    {
+      parse.set_pos(pos);
     }
   }
 
@@ -79,11 +84,13 @@ auto Diagnostic::from_string(std::string_view str) -> std::optional<Diagnostic>
     return result;
   }
 
+  // TODO(parse as long as the line starts with space)
   if (auto source = parse.to_eof().consume_str(); source)
   {
     diagnostic.source = *source;
   }
 
+  str = str.substr(0, parse.pos());
   result = diagnostic;
   return result;
 }

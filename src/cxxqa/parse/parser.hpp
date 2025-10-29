@@ -117,6 +117,8 @@ public:
 
   auto pos() const noexcept -> size_t;
 
+  auto set_pos(size_t pos) noexcept -> bool;
+
   auto string() const noexcept -> std::string_view;
 
   auto delimiter() const noexcept -> char;

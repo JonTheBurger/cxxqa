@@ -220,6 +220,16 @@ auto Parser::pos() const noexcept -> size_t
   return _pos;
 }
 
+auto Parser::set_pos(size_t pos) noexcept -> bool
+{
+  if (pos < _source.size())
+  {
+    _pos = pos;
+    return true;
+  }
+  return false;
+}
+
 auto Parser::string() const noexcept -> std::string_view
 {
   return _source.substr(_pos);
