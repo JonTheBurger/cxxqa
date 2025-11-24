@@ -9,7 +9,7 @@ include(Catch)
 link_libraries(cxxqa.core Catch2::Catch2WithMain)
 
 add_executable(diagnostic.test diagnostic.test.cpp)
-catch_discover_tests(diagnostic.test)
+catch_discover_tests(diagnostic.test EXTRA_ARGS --colour-mode ansi)
 
 add_executable(parser.test parser.test.cpp)
 catch_discover_tests(parser.test)

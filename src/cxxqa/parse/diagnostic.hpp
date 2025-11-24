@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace cxxqa {
 
@@ -42,6 +43,8 @@ C:/Users/vagrant/My Documents/diagnostic.cpp:10:8: warning: variable ‘parse’
 ```
    */
   static auto consume_from_string(std::string_view& str) -> std::optional<Diagnostic>;
+
+  static auto parse_all(std::string_view str) -> std::vector<Diagnostic>;
 };
 }  // namespace cxxqa
 

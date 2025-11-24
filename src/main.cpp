@@ -7,16 +7,15 @@
 #include <boost/system/result.hpp>
 #include <cxxqa/core/app.hpp>
 #include <fmt/format.h>
-// #include <boost/outcome/experimental/status-code/sys
-
-namespace sys = boost::system;
+#include <cxxqa/util/result.hpp>
 
 auto main(int argc, char** argv) -> int
 {
-  fmt::println("{}", sizeof(sys::error_code{}));
-  fmt::println("{}", sizeof(std::error_code{}));
+  using namespace cxxqa;
 
-  fmt::println("{}", sizeof(sys::result<int>{}));
+  Status status = Code::success;
+  fmt::println("{}", status.success());
+  fmt::println("{}", status.failure());
 
   // auto e = std::expected<int, std::error_code>{};
   // fmt::println("{}", sizeof(e));

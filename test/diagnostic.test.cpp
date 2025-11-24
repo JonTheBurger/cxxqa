@@ -2,6 +2,42 @@
 
 #include <cxxqa/parse/diagnostic.hpp>
 
+SCENARIO("Parse All")  // NOLINT
+{
+  std::string_view message = R"(C:/Users/vagrant/My Documents/diagnostic.cpp:10:8: warning: variable ‘parse’ set but not used [-Wunused-but-set-variable]
+   10 |   auto parse = Parser(str);
+      |        ^~~~~
+C:/Users/vagrant/My Documents/serif.cpp:324:8: error: Missing attribute [[nodiscard]] [-Wmissing-attribute]
+  324 |   auto empty() -> bool;
+      |   ^~~~~
+)";
+
+  auto diagnostics = cxxqa::Diagnostic::parse_all(message);
+  REQUIRE(diagnostics.size() > 0);
+
+  REQUIRE(diagnostics[0].file == "C:/Users/vagrant/My Documents/diagnostic.cpp");
+  REQUIRE(diagnostics[0].line == 10);
+  REQUIRE(diagnostics[0].column == 8);
+  REQUIRE(diagnostics[0].severity == "warning");
+  REQUIRE(diagnostics[0].message == "variable ‘parse’ set but not used");
+  REQUIRE(diagnostics[0].category == "-Wunused-but-set-variable");
+  REQUIRE(diagnostics[0].source == R"(   10 |   auto parse = Parser(str);
+      |        ^~~~~
+)");
+
+  REQUIRE(diagnostics[1].file == "C:/Users/vagrant/My Documents/serif.cpp");
+  REQUIRE(diagnostics[1].line == 324);
+  REQUIRE(diagnostics[1].column == 8);
+  REQUIRE(diagnostics[1].severity == "error");
+  REQUIRE(diagnostics[1].message == "Missing attribute [[nodiscard]]");
+  REQUIRE(diagnostics[1].category == "-Wmissing-attribute");
+  REQUIRE(diagnostics[1].source == R"(  324 |   auto empty() -> bool;
+      |   ^~~~~
+)");
+
+
+}
+
 SCENARIO("Multiple Diagnostics")  // NOLINT
 {
   std::string_view message = R"(C:/Users/vagrant/My Documents/diagnostic.cpp:10:8: warning: variable ‘parse’ set but not used [-Wunused-but-set-variable]

@@ -75,7 +75,7 @@ auto Diagnostic::consume_from_string(std::string_view& str) -> std::optional<Dia
 
         // variable ‘parse’ set but not used [-Wunused-but-set-variable]
         // ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ substr
-        diagnostic.message  = diagnostic.message.substr(0, pos - 1);
+        diagnostic.message = diagnostic.message.substr(0, pos - 1);
       }
     }
   }
@@ -84,15 +84,33 @@ auto Diagnostic::consume_from_string(std::string_view& str) -> std::optional<Dia
     return result;
   }
 
-  // TODO(parse as long as the line starts with space)
-  if (auto source = parse.to_eof().consume_str(); source)
+  // Parse source as long as the line starts with space
+  while (parse.to_newline().to_eof().peek() == ' ')
   {
-    diagnostic.source = *source;
+    if (auto source = parse.consume_str(); source)
+    {
+      diagnostic.source += *source;
+      diagnostic.source += '\n';
+    }
+    else
+    {
+      break;
+    }
   }
 
-  str = str.substr(0, parse.pos());
+  str    = str.substr(parse.pos());
   result = diagnostic;
   return result;
+}
+
+auto Diagnostic::parse_all(std::string_view str) -> std::vector<Diagnostic>
+{
+  std::vector<Diagnostic> diagnostics;
+  while (auto diagnostic = Diagnostic::consume_from_string(str))
+  {
+    diagnostics.push_back(*diagnostic);
+  }
+  return diagnostics;
 }
 }  // namespace cxxqa
 

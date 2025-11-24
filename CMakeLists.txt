@@ -20,6 +20,7 @@ target_sources(cxxqa.core
     src/cxxqa/parse/parser.cpp
     src/cxxqa/tool/git.cpp
     src/cxxqa/util/proc.cpp
+    src/cxxqa/util/result.cpp
   PUBLIC
     FILE_SET HEADERS
     BASE_DIRS
@@ -33,6 +34,7 @@ target_sources(cxxqa.core
       src/cxxqa/parse/parser.hpp
       src/cxxqa/tool/git.hpp
       src/cxxqa/util/proc.hpp
+      src/cxxqa/util/result.hpp
 )
 target_link_libraries(cxxqa.core
   PUBLIC

@@ -27,7 +27,7 @@
       "inherits": ["base", "vcpkg"],
       "installDir": "${sourceDir}/build/${presetName}/install",
       "cacheVariables": {
-        "BUILD_TESTING": "OFF",
+        "BUILD_TESTING": "ON",
         "CMAKE_BUILD_TYPE": "Debug"
       }
     },
