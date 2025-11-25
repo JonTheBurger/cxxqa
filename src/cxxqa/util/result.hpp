@@ -9,21 +9,38 @@ Error propagation machinery. In summary:
 - `Result<T>` can be either a `T` or a `Status` on failure. It can be constructed using
   the `ok()` and `err()` helper functions.
 - `Outcome<T>` is a `Result<T>` that can also marshal an exception.
-
- */
+ ******************************************************************************/
 #pragma once
 
+/* Includes
+ ******************************************************************************/
+// std
+
+// 3rd
 #include <boost/outcome/experimental/status_outcome.hpp>
 #include <boost/outcome/experimental/status_result.hpp>
 
-#define CXXQA_ERROR_NAMESPACE              BOOST_OUTCOME_SYSTEM_ERROR2_NAMESPACE
-#define CXXQA_TRY(declaration, expression) OUTCOME_TRY(declaration, expression)
+// local
+#include <fmt/format.h>
 
+// namespace
 namespace cxxqa {
 
 /// @see https://ned14.github.io/outcome/experimental/status_result/
 namespace errors = BOOST_OUTCOME_V2_NAMESPACE::experimental;
 
+/* Defines
+ ******************************************************************************/
+#define CXXQA_ERROR_NAMESPACE              BOOST_OUTCOME_SYSTEM_ERROR2_NAMESPACE
+#define CXXQA_TRY(declaration, expression) OUTCOME_TRY(declaration, expression)
+
+/* Constants
+ ******************************************************************************/
+/// Used to create a successful `Status`.
+inline constexpr errors::errc Success = errors::errc::success;
+
+/* Types
+ ******************************************************************************/
 /// Error or success + the domain of the error (Type-erased; move-only)
 /// @warning This type should not be default constructed.
 /// It should be constructed from a `Code::...` or user error type.
@@ -32,26 +49,9 @@ using Status = errors::erased_status_code<uintptr_t>;
 /// Error codes for type `GenericError`.
 using Code = errors::errc;
 
-/// Used to create a successful `Status`.
-inline constexpr Code Success = Code::success;
-
 /// @see https://ned14.github.io/outcome/reference/types/basic_result/
 template <typename T, typename E = errors::error>
 using Result = errors::status_result<T, E>;
-
-/// Creates a successful Result<T, EC>
-template <typename T>
-constexpr auto ok(T&& value)
-{
-  return errors::success(std::forward<T>(value));
-}
-
-/// Creates a failed Result<T, EC>
-template <typename EC>
-auto err(EC&& error)
-{
-  return errors::failure(std::forward<EC>(error));
-}
 
 /// @see https://ned14.github.io/outcome/reference/types/basic_outcome/
 template <typename T, typename E = errors::error, typename EP = std::exception_ptr>
@@ -76,9 +76,23 @@ using PosixError = errors::posix_code;
 template <typename Domain>
 using AbstractError = errors::error::status_code<Domain>;
 
-}  // namespace cxxqa
+/* Functions
+ ******************************************************************************/
+/// Creates a successful Result<T, EC>
+template <typename T>
+constexpr auto ok(T&& value)
+{
+  return errors::success(std::forward<T>(value));
+}
 
-#include <fmt/format.h>
+/// Creates a failed Result<T, EC>
+template <typename EC>
+auto err(EC&& error)
+{
+  return errors::failure(std::forward<EC>(error));
+}
+
+}  // namespace cxxqa
 
 /// Format ErrorMessage
 template <>

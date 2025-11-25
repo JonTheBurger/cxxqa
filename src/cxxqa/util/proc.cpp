@@ -1,8 +1,16 @@
+/** @file
+ *
+ ******************************************************************************/
+
+/* Includes
+ ******************************************************************************/
+// std
 #include <memory>
 #include <ranges>
 #include <string_view>
 #include <vector>
 
+// 3rd
 #include <au/au.hh>
 #include <au/quantity.hh>
 #include <au/units/bytes.hh>
@@ -17,10 +25,20 @@
 #include <boost/system/detail/error_code.hpp>
 #include <spdlog/spdlog.h>
 
+// local
 #include <cxxqa/util/proc.hpp>
 
-namespace {
+// namespace
+namespace cxxqa {
+namespace asio = boost::asio;
+namespace log  = spdlog;
+namespace proc = boost::process::v2;
+namespace sys  = boost::system;
+namespace unit = au;
 
+/* Functions
+ ******************************************************************************/
+namespace {
 void collect_lines(void* ptr, std::string_view chunk)
 {
   auto* lines = static_cast<std::vector<std::string>*>(ptr);
@@ -38,16 +56,12 @@ void collect_text(void* ptr, std::string_view chunk)
 
 }  // namespace
 
-namespace cxxqa {
-
-namespace asio = boost::asio;
-namespace log  = spdlog;
-namespace proc = boost::process::v2;
-namespace sys  = boost::system;
-namespace unit = au;
-
+/* Constants
+ ******************************************************************************/
 using KiB = unit::Kibi<unit::Bytes>;
 
+/* Types
+ ******************************************************************************/
 struct OutPipe {
   explicit OutPipe(asio::io_context& ctx)
     : pipe{ ctx }
@@ -96,6 +110,8 @@ struct Process::Impl {
   }
 };
 
+/* Functions
+ ******************************************************************************/
 Process::Process(std::string_view executable)
   : _self{ std::make_unique<Process::Impl>() }
 {

@@ -1,7 +1,15 @@
+/* Includes
+ ******************************************************************************/
+// std
+
+// 3rd
 #include <catch2/catch_test_macros.hpp>
 
+// local
 #include <cxxqa/parse/parser.hpp>
 
+/* Tests
+ ******************************************************************************/
 SCENARIO("to_lower", "[parser]")  // NOLINT
 {
   SECTION("Uppercase letters are lowered")
@@ -131,7 +139,7 @@ SCENARIO("parse.skip...", "[skip]")  // NOLINT
   }
 }
 
-SCENARIO("parse.to_newline", "[to_newline]") // NOLINT
+SCENARIO("parse.to_newline", "[to_newline]")  // NOLINT
 {
   auto parse = cxxqa::Parser("Hello\r\nWorld\nAnd\rGoodbye\n\n");
 

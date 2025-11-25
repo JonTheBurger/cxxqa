@@ -1,16 +1,27 @@
+/** @file
+ *
+ ******************************************************************************/
+
+/* Includes
+ ******************************************************************************/
+// std
 #include <cassert>
-#include <ranges>
 #include <unordered_set>
 
+// 3rd
+
+// local
 #include <cxxqa/parse/cppcheck.hpp>
 #include <cxxqa/util/log.hpp>
 #include <cxxqa/util/ranges.hpp>
 #include <cxxqa/util/xml.hpp>
 
+// namespace
 namespace cxxqa::cppcheck {
-
 using namespace std::string_view_literals;
 
+/* Functions
+ ******************************************************************************/
 auto parse_severity(std::string_view severity) noexcept -> Severity
 {
   if (severity == "error")

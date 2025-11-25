@@ -1,16 +1,31 @@
+/** @file
+ *
+ ******************************************************************************/
+#pragma once
+
+/* Includes
+ ******************************************************************************/
+// std
 #include <algorithm>
 #include <ranges>
 #include <vector>
 
+// 3rd
 #include <fmt/base.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <spdlog/spdlog.h>
 
+// local
 #include <cxxqa/tool/git.hpp>
 #include <cxxqa/util/proc.hpp>
 
+
+// namespace
 namespace cxxqa {
+
+/* Functions
+ ******************************************************************************/
 // TODO: don't re-create Process
 Git::Git() = default;
 
@@ -67,13 +82,14 @@ auto Git::get_repo_files(const std::vector<std::string>& patterns) -> std::vecto
 
 auto Git::root_dir() noexcept -> std::string
 {
-  auto git = Process{"git"};
-  git.with_args({"rev-parse", "--show-toplevel"});
+  auto git = Process{ "git" };
+  git.with_args({ "rev-parse", "--show-toplevel" });
   std::string dir;
-  git.on_stdout([](void* ptr, std::string_view lines){
+  git.on_stdout([](void* ptr, std::string_view lines) {
     auto* dir = static_cast<std::string*>(ptr);
-    *dir = lines;
-  }, static_cast<void*>(&dir));
+    *dir      = lines;
+  },
+                static_cast<void*>(&dir));
   git.run();
 
   return dir;

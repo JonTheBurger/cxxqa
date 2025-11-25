@@ -1,15 +1,29 @@
+/** @file
+ *
+ ******************************************************************************/
 #pragma once
 
+/* Includes
+ ******************************************************************************/
+// std
 #include <cstdint>
 #include <string>
 #include <vector>
 
+// 3rd
+
+// local
+
+// namespace
 namespace cxxqa {
+
+/* Types
+ ******************************************************************************/
 class Git {
 public:
   Git();
 
-  enum class Submodules {
+  enum class Submodules : uint8_t {
     IGNORE  = 0,
     RECURSE = 1,
   };
@@ -31,4 +45,5 @@ private:
   std::string _exe;
   std::string _pwd;
 };
+
 }  // namespace cxxqa

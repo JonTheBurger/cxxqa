@@ -1,16 +1,27 @@
+/** @file
+ *
+ ******************************************************************************/
 #pragma once
 
+/* Includes
+ ******************************************************************************/
+// std
+
+// 3rd
 #include <pugixml.hpp>
 
+// local
 #include <cxxqa/util/result.hpp>
 
+// namespace
 namespace cxxqa::xml {
 
+/* Types
+ ******************************************************************************/
 using Document = pugi::xml_document;
-using Node = pugi::xml_node;
-
-using Code  = pugi::xml_parse_status;
-using Error = CXXQA_ERROR_NAMESPACE::quick_status_code_from_enum<Code>;
+using Node     = pugi::xml_node;
+using Code     = pugi::xml_parse_status;
+using Error    = CXXQA_ERROR_NAMESPACE::quick_status_code_from_enum<Code>;
 }  // namespace cxxqa::xml
 
 namespace CXXQA_ERROR_NAMESPACE {

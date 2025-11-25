@@ -1,11 +1,25 @@
+/** @file
+ *
+ ******************************************************************************/
 #pragma once
 
+/* Includes
+ ******************************************************************************/
+// std
 #include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
 
+// 3rd
+
+// local
+
+// namespace
 namespace cxxqa {
+
+/* Types
+ ******************************************************************************/
 class App {
 public:
   App();
@@ -24,4 +38,5 @@ private:
   struct Impl;
   std::unique_ptr<Impl> _self;
 };
+
 }  // namespace cxxqa

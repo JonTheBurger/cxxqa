@@ -1,14 +1,26 @@
+/** @file
+ *
+ ******************************************************************************/
 #pragma once
 
+/* Includes
+ ******************************************************************************/
+// std
 #include <flat_map>
 #include <memory>
 #include <string>
 #include <vector>
 
+// 3rd
 #include <fmt/format.h>
 
+// local
+
+// namespace
 namespace cxxqa {
 
+/* Types
+ ******************************************************************************/
 // TODO: probably switch to std::function or move_only_function
 class Process {
 public:
@@ -72,3 +84,4 @@ struct fmt::formatter<cxxqa::Process> {
     return out;
   }
 };
+

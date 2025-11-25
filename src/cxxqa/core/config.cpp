@@ -1,9 +1,18 @@
+/** @file
+ *
+ ******************************************************************************/
+// TODO: configure logger
+
+/* Includes
+ ******************************************************************************/
+// std
 #include <cstdlib>
 #include <filesystem>
 #include <optional>
 #include <ranges>
 #include <string_view>
 
+// 3rd
 #include <CLI/App.hpp>
 #include <CLI/CLI.hpp>
 #include <CLI/Config.hpp>
@@ -16,16 +25,18 @@
 #include <spdlog/common.h>
 #include <spdlog/spdlog.h>
 
+// local
 #include <cxxqa/core/config.hpp>
 #include <cxxqa/util/filesystem.hpp>
 #include <cxxqa/util/log.hpp>
 #include <cxxqa/util/ranges.hpp>
 
+// namespace
+namespace cxxqa {
+
 namespace {
-using namespace cxxqa;
-
-// TODO: configure logger
-
+/* Constants
+ ******************************************************************************/
 constexpr char PATH_ENV_SEP =
 #if defined(_WIN32) && !defined(__CYGWIN__)
   ';'
@@ -34,6 +45,8 @@ constexpr char PATH_ENV_SEP =
 #endif
   ;
 
+/* Types
+ ******************************************************************************/
 class ColorFormatter final : public CLI::Formatter {
   using super = CLI::Formatter;
 
@@ -77,6 +90,8 @@ public:
   // auto make_option_usage(const CLI::Option* opt) const -> std::string override;
 };
 
+/* Functions
+ ******************************************************************************/
 auto environment(const char* name) -> std::optional<const char*>
 {
   static std::mutex mtx;
@@ -150,10 +165,10 @@ auto config_dir_validator(std::string_view app = "cxxqa") -> CLI::Validator
   }
   return validator;
 }
-
 }  // namespace
 
-namespace cxxqa {
+/* Functions
+ ******************************************************************************/
 Config::Config() = default;
 
 auto Config::from_cli(int argc, char** argv) -> Config

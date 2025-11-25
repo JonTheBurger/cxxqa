@@ -1,15 +1,25 @@
+/** @file
+ *
+ ******************************************************************************/
 #pragma once
 
-#include <cctype>
-#include <charconv>
+/* Includes
+ ******************************************************************************/
+// std
 #include <cstdint>
 #include <optional>
 #include <string_view>
 
+// 3rd
+
+// local
 #include <cxxqa/util/flags.hpp>
 
+// namespace
 namespace cxxqa {
 
+/* Functions
+ ******************************************************************************/
 constexpr auto is_letter(char chr) noexcept -> bool
 {
   return ('A' <= chr && chr <= 'Z') || ('a' <= chr && chr <= 'z');
@@ -50,6 +60,8 @@ constexpr auto accept_any_char(char /*chr*/) noexcept -> bool
   return true;
 }
 
+/* Types
+ ******************************************************************************/
 using check_char = bool (&)(char);
 
 class Parser {

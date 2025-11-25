@@ -1,9 +1,24 @@
+/** @file
+ *
+ ******************************************************************************/
+
+/* Includes
+ ******************************************************************************/
+// std
+#include <charconv>
 #include <optional>
 #include <string_view>
+
+// 3rd
+
+// local
 #include <cxxqa/parse/parser.hpp>
 
+// namespace
 namespace cxxqa {
 
+/* Functions
+ ******************************************************************************/
 Parser::Parser(std::string_view source)
   : _source{ source }
 {
@@ -130,10 +145,10 @@ auto Parser::consume_str(check_char accept_char) -> std::optional<std::string_vi
     skip_space_tab();
   }
 
-  const auto reset  = _pos;
+  const auto reset = _pos;
   size_t     start = _pos;
   size_t     end   = _pos;
-  bool       found  = true;
+  bool       found = true;
   while (_pos < _source.size())
   {
     if (string().starts_with(_delimiter))

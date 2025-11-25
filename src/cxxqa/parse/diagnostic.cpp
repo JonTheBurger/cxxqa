@@ -1,9 +1,23 @@
+/** @file
+ *
+ ******************************************************************************/
+
+/* Includes
+ ******************************************************************************/
+// std
+
+// 3rd
 #include <fmt/format.h>
 
+// local
 #include <cxxqa/parse/diagnostic.hpp>
 #include <cxxqa/parse/parser.hpp>
 
+// namespace
 namespace cxxqa {
+
+/* Functions
+ ******************************************************************************/
 auto Diagnostic::consume_from_string(std::string_view& str) -> std::optional<Diagnostic>
 {
   using namespace std::string_view_literals;
@@ -112,6 +126,7 @@ auto Diagnostic::parse_all(std::string_view str) -> std::vector<Diagnostic>
   }
   return diagnostics;
 }
+
 }  // namespace cxxqa
 
 auto fmt::formatter<cxxqa::Diagnostic>::format(const cxxqa::Diagnostic& self, format_context& ctx) const -> format_context::iterator

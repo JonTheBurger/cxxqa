@@ -1,10 +1,30 @@
+/** @file
+ *
+ ******************************************************************************/
 #pragma once
 
+/* Includes
+ ******************************************************************************/
+// std
+
+// 3rd
+
+// local
 #include <cxxqa/util/filesystem.hpp>
 #include <cxxqa/util/result.hpp>
 #include <cxxqa/util/xml.hpp>
 
+// namespace
 namespace cxxqa::cppcheck {
+
+/* Defines
+ ******************************************************************************/
+
+/* Constants
+ ******************************************************************************/
+
+/* Types
+ ******************************************************************************/
 enum class Code : uint8_t {
   OK = 0,
   MISSING_ELEMENT_RESULTS,
@@ -19,8 +39,6 @@ enum class Severity : uint8_t {
   WARNING,
   ERROR,
 };
-
-auto parse_severity(std::string_view severity) noexcept -> Severity;
 
 struct Location {
   static auto from(const xml::Node& node) -> Location;
@@ -52,6 +70,11 @@ struct Report {
   std::vector<Error> errors;
   uint8_t            version;
 };
+
+/* Functions
+ ******************************************************************************/
+auto parse_severity(std::string_view severity) noexcept -> Severity;
+
 };  // namespace cxxqa::cppcheck
 
 namespace CXXQA_ERROR_NAMESPACE {

@@ -1,7 +1,15 @@
+/** @file
+ *
+ ******************************************************************************/
+
+/* Includes
+ ******************************************************************************/
+// std
 #include <algorithm>
 #include <ranges>
 #include <string_view>
 
+// 3rd
 #include <fmt/base.h>
 #include <fmt/color.h>
 #include <fmt/format.h>
@@ -10,6 +18,7 @@
 #include <re2/re2.h>
 #include <spdlog/spdlog.h>
 
+// local
 #include <cxxqa/core/app.hpp>
 #include <cxxqa/core/config.hpp>
 #include <cxxqa/parse/compile_command.hpp>
@@ -18,6 +27,11 @@
 #include <cxxqa/util/proc.hpp>
 #include <cxxqa/util/ranges.hpp>
 
+// namespace
+namespace cxxqa {
+
+/* Functions
+ ******************************************************************************/
 namespace {
 auto to_vector(int argc, char** argv) -> std::vector<std::string>
 {
@@ -30,8 +44,6 @@ auto to_vector(int argc, char** argv) -> std::vector<std::string>
   return args;
 }
 }  // namespace
-
-namespace cxxqa {
 
 struct App::Impl {
   std::vector<std::string> args;

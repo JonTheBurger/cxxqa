@@ -1,9 +1,23 @@
+/** @file
+ *
+ ******************************************************************************/
 #pragma once
 
+/* Includes
+ ******************************************************************************/
+// std
 #include <string>
 #include <vector>
 
+// 3rd
+
+// local
+
+// namespace
 namespace cxxqa {
+
+/* Types
+ ******************************************************************************/
 class Config {
 public:
   Config();
@@ -37,4 +51,5 @@ private:
 
   Troubleshoot _troubleshoot{};
 };
+
 }  // namespace cxxqa

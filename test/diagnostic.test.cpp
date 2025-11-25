@@ -1,7 +1,15 @@
+/* Includes
+ ******************************************************************************/
+// std
+
+// 3rd
 #include <catch2/catch_test_macros.hpp>
 
+// local
 #include <cxxqa/parse/diagnostic.hpp>
 
+/* Tests
+ ******************************************************************************/
 SCENARIO("Parse All")  // NOLINT
 {
   std::string_view message = R"(C:/Users/vagrant/My Documents/diagnostic.cpp:10:8: warning: variable ‘parse’ set but not used [-Wunused-but-set-variable]
@@ -34,7 +42,6 @@ C:/Users/vagrant/My Documents/serif.cpp:324:8: error: Missing attribute [[nodisc
   REQUIRE(diagnostics[1].source == R"(  324 |   auto empty() -> bool;
       |   ^~~~~
 )");
-
 
 }
 
@@ -169,3 +176,4 @@ SCENARIO("Diagnostic with brackets")  // NOLINT
   REQUIRE(diagnostic->message == "operator[] should have [[nodiscard]]");
   REQUIRE(diagnostic->category == "-Wsomething");
 }
+

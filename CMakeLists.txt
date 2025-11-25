@@ -32,6 +32,7 @@ target_sources(cxxqa.core
       src/cxxqa/parse/compile_command.hpp
       src/cxxqa/parse/diagnostic.hpp
       src/cxxqa/parse/parser.hpp
+      src/cxxqa/parse/sarif.hpp
       src/cxxqa/tool/git.hpp
       src/cxxqa/util/proc.hpp
       src/cxxqa/util/result.hpp

@@ -1,11 +1,23 @@
-#include <filesystem>
+/** @file
+ *
+ ******************************************************************************/
+
+/* Includes
+ ******************************************************************************/
+// std
+
+// 3rd
+
+// local
 #include <cxxqa/parse/compile_command.hpp>
+#include <cxxqa/util/filesystem.hpp>
+#include <cxxqa/util/json.hpp>
 
-#include <glaze/glaze.hpp>
-
+// namespace
 namespace cxxqa {
-namespace json = glz;
 
+/* Functions
+ ******************************************************************************/
 auto CompileCommand::from_file(std::string_view file) -> std::vector<CompileCommand>
 {
   std::vector<CompileCommand> compile_commands;
@@ -29,6 +41,7 @@ auto CompileCommand::dir_as_path(const std::filesystem::path* relative_to) const
 
 auto CompileCommand::cmd_as_vec() const -> std::vector<std::string>
 {
+  // TODO: Implement this
 
 // "/usr/lib64/ccache/c++
 // -DBOOST_CONTAINER_NO_LIB
