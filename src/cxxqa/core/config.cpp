@@ -17,11 +17,12 @@
 #include <spdlog/spdlog.h>
 
 #include <cxxqa/core/config.hpp>
+#include <cxxqa/util/filesystem.hpp>
+#include <cxxqa/util/log.hpp>
+#include <cxxqa/util/ranges.hpp>
 
 namespace {
-namespace fs  = std::filesystem;
-namespace log = spdlog;
-namespace view = std::views;
+using namespace cxxqa;
 
 // TODO: configure logger
 

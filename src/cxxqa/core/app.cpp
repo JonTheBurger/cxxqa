@@ -12,13 +12,14 @@
 
 #include <cxxqa/core/app.hpp>
 #include <cxxqa/core/config.hpp>
-#include <cxxqa/core/exception.hpp>
 #include <cxxqa/parse/compile_command.hpp>
 #include <cxxqa/tool/git.hpp>
+#include <cxxqa/util/filesystem.hpp>
 #include <cxxqa/util/proc.hpp>
+#include <cxxqa/util/ranges.hpp>
 
 namespace {
-std::vector<std::string> to_vector(int argc, char** argv)
+auto to_vector(int argc, char** argv) -> std::vector<std::string>
 {
   std::vector<std::string> args;
   args.reserve(static_cast<size_t>(argc));
@@ -31,11 +32,6 @@ std::vector<std::string> to_vector(int argc, char** argv)
 }  // namespace
 
 namespace cxxqa {
-
-namespace fs    = std::filesystem;
-namespace log   = spdlog;
-namespace range = std::ranges;
-namespace view  = std::views;
 
 struct App::Impl {
   std::vector<std::string> args;

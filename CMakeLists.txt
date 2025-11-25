@@ -8,14 +8,15 @@ find_package(CLI11 REQUIRED)
 find_package(fmt REQUIRED)
 find_package(re2 REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(pugixml REQUIRED)
 
 add_library(cxxqa.core)
 target_sources(cxxqa.core
   PRIVATE
     src/cxxqa/core/app.cpp
     src/cxxqa/core/config.cpp
-    src/cxxqa/core/exception.cpp
     src/cxxqa/parse/compile_command.cpp
+    src/cxxqa/parse/cppcheck.cpp
     src/cxxqa/parse/diagnostic.cpp
     src/cxxqa/parse/parser.cpp
     src/cxxqa/tool/git.cpp
@@ -28,7 +29,6 @@ target_sources(cxxqa.core
     FILES
       src/cxxqa/core/app.hpp
       src/cxxqa/core/config.hpp
-      src/cxxqa/core/exception.hpp
       src/cxxqa/parse/compile_command.hpp
       src/cxxqa/parse/diagnostic.hpp
       src/cxxqa/parse/parser.hpp
@@ -43,6 +43,7 @@ target_link_libraries(cxxqa.core
     Boost::process
     CLI11::CLI11
     fmt::fmt
+    pugixml::pugixml
     re2::re2
     spdlog::spdlog
 )

@@ -17,7 +17,6 @@
 #include <boost/system/detail/error_code.hpp>
 #include <spdlog/spdlog.h>
 
-#include <cxxqa/core/exception.hpp>
 #include <cxxqa/util/proc.hpp>
 
 namespace {

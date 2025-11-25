@@ -1,11 +1,23 @@
+/** @file
+Error propagation machinery. In summary:
+
+- `Code` is `std::errc`, a generic list of POSIX error codes. These can be used for
+  generic comparisons.
+- `Status` is a type-erased enum+domain. For example, `Code` is the `std::errc` `enum`
+  and the "Generic" domain. An XML parser may use its own enumeration in an "XML"
+  domain. So long as the `enum` can fit in a `uintptr_t`, it can fit in `Status`.
+- `Result<T>` can be either a `T` or a `Status` on failure. It can be constructed using
+  the `ok()` and `err()` helper functions.
+- `Outcome<T>` is a `Result<T>` that can also marshal an exception.
+
+ */
 #pragma once
-#include <cstdint>
 
 #include <boost/outcome/experimental/status_outcome.hpp>
 #include <boost/outcome/experimental/status_result.hpp>
 
-#define CXXQA_ERROR_NAMESPACE_BEGIN namespace BOOST_OUTCOME_SYSTEM_ERROR2_NAMESPACE {
-#define CXXQA_ERROR_NAMESPACE_END   }
+#define CXXQA_ERROR_NAMESPACE              BOOST_OUTCOME_SYSTEM_ERROR2_NAMESPACE
+#define CXXQA_TRY(declaration, expression) OUTCOME_TRY(declaration, expression)
 
 namespace cxxqa {
 
@@ -45,63 +57,30 @@ auto err(EC&& error)
 template <typename T, typename E = errors::error, typename EP = std::exception_ptr>
 using Outcome = errors::status_outcome<T, E, EP>;
 
+/// Polymorphic type that can be either a static or heap allocated string
 /// @see https://ned14.github.io/outcome/experimental/worked-example-long/string_ref/
 using ErrorMessage = system_error2::status_code_domain::string_ref;
 
+/// Use for non-OS specific errors. This uses the `std::errc`, which uses the posix codes.
 using GenericError = errors::generic_code;
-using SystemError  = errors::system_code;
-using PosixError   = errors::posix_code;
+
+/// OS-specific `Status`. Use this when calling OS APIs!
+using SystemError = errors::system_code;
+
+/// POSIX-specific `Status` - only use this for POSIX APIs!
+/// @note Use `PosixError::current()` to retrieve `errno()` as a Status
+using PosixError = errors::posix_code;
 
 /// Type for creating custom for specializing error type for use in Status
 /// @see https://ned14.github.io/outcome/experimental/worked-example/
 template <typename Domain>
 using AbstractError = errors::error::status_code<Domain>;
 
-enum class Error : std::uint32_t {
-  OK = 0,
-  PROCESS_NOT_FOUND = 101,
-  PARSE_BAD_COMPILE_COMMANDS = 202,
-};
-
-class Exception : public std::runtime_error {
-public:
-  Exception(Error code, const std::string& message);
-  auto code() const noexcept -> Error;
-
-private:
-  Error _code;
-};
-
 }  // namespace cxxqa
-
-CXXQA_ERROR_NAMESPACE_BEGIN
-
-template <>
-struct quick_status_code_from_enum<cxxqa::Error> : quick_status_code_from_enum_defaults<cxxqa::Error> {
-  static constexpr const auto domain_name = "cxxqa";
-  static constexpr const auto domain_uuid = "{e2043210-30aa-41f9-56b2-827cd9e2264e}";
-
-  static auto value_mappings() -> const std::initializer_list<mapping>&
-  {
-    static const std::initializer_list<mapping> errors = {
-      { .value = cxxqa::Error::OK, .message = "OK", .code_mappings = { cxxqa::Code::success } },
-      { .value = cxxqa::Error::PROCESS_NOT_FOUND, .message = "Process not found", .code_mappings = { cxxqa::Code::no_such_file_or_directory } },
-      { .value = cxxqa::Error::PARSE_BAD_COMPILE_COMMANDS, .message = "Invalid compile_commands.json", .code_mappings = {} },
-    };
-    return errors;
-  }
-
-  // Completely optional definition of mixin for the status code synthesised from `Enum`. It can be omitted.
-  template <class Base>
-  struct mixin : Base {
-    using Base::Base;
-  };
-};
-
-CXXQA_ERROR_NAMESPACE_END
 
 #include <fmt/format.h>
 
+/// Format ErrorMessage
 template <>
 struct fmt::formatter<cxxqa::ErrorMessage> : formatter<std::string_view> {
   auto format(const cxxqa::ErrorMessage& self, format_context& ctx) const -> format_context::iterator;
