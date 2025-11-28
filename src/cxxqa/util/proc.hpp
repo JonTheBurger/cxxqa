@@ -12,9 +12,9 @@
 #include <vector>
 
 // 3rd
-#include <fmt/format.h>
 
 // local
+#include <cxxqa/util/fmt.hpp>
 
 // namespace
 namespace cxxqa {
@@ -67,21 +67,7 @@ private:
 }  // namespace cxxqa
 
 template <>
-struct fmt::formatter<cxxqa::Process> {
-  constexpr auto parse(fmt::format_parse_context& ctx)
-  {
-    return ctx.begin();
-  }
-
-  template <typename FormatContext>
-  auto format(const cxxqa::Process& self, FormatContext& ctx) const
-  {
-    auto out = fmt::format_to(ctx.out(), "\"{}\"", self.exe());
-    for (const auto& arg : self.args())
-    {
-      out = fmt::format_to(out, " \"{}\"", arg);
-    }
-    return out;
-  }
+struct cxxqa::fmt::formatter<cxxqa::Process> : formatter<std::string_view> {
+  auto format(const cxxqa::Process& self, format_context& ctx) const -> format_context::iterator;
 };
 

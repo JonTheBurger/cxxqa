@@ -7,7 +7,6 @@
 // std
 
 // 3rd
-#include <fmt/format.h>
 
 // local
 #include <cxxqa/parse/diagnostic.hpp>
@@ -131,5 +130,6 @@ auto Diagnostic::parse_all(std::string_view str) -> std::vector<Diagnostic>
 
 auto fmt::formatter<cxxqa::Diagnostic>::format(const cxxqa::Diagnostic& self, format_context& ctx) const -> format_context::iterator
 {
+  // TODO: implement
   return formatter<std::string_view>::format("", ctx);
 }

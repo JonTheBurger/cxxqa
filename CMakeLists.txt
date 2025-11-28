@@ -19,6 +19,7 @@ target_sources(cxxqa.core
     src/cxxqa/parse/cppcheck.cpp
     src/cxxqa/parse/diagnostic.cpp
     src/cxxqa/parse/parser.cpp
+    src/cxxqa/parse/sarif.cpp
     src/cxxqa/tool/git.cpp
     src/cxxqa/util/proc.cpp
     src/cxxqa/util/result.cpp
@@ -30,6 +31,7 @@ target_sources(cxxqa.core
       src/cxxqa/core/app.hpp
       src/cxxqa/core/config.hpp
       src/cxxqa/parse/compile_command.hpp
+      src/cxxqa/parse/detail/sarif_spec.hpp
       src/cxxqa/parse/diagnostic.hpp
       src/cxxqa/parse/parser.hpp
       src/cxxqa/parse/sarif.hpp
@@ -53,6 +55,9 @@ target_compile_features(cxxqa.core PUBLIC cxx_std_23)
 add_executable(cxxqa src/main.cpp)
 target_link_libraries(cxxqa PRIVATE cxxqa.core)
 install(TARGETS cxxqa cxxqa.core)
+
+add_executable(scratch src/scratch.cpp)
+target_link_libraries(scratch PRIVATE cxxqa.core)
 
 if(BUILD_TESTING)
   add_subdirectory(test)

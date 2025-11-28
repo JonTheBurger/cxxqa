@@ -1,0 +1,9 @@
+[project]
+name = "cxxqa"
+version = "0"
+dependencies = [
+  "mkdocs",
+  "mkdoxy",
+  "mkdocs-material",
+  "mkdocs-print-site-plugin",
+]

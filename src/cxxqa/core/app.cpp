@@ -6,7 +6,6 @@
  ******************************************************************************/
 // std
 #include <algorithm>
-#include <ranges>
 #include <string_view>
 
 // 3rd

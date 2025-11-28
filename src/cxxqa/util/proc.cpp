@@ -211,3 +211,13 @@ auto Process::run_text() -> Text
 }
 
 }  // namespace cxxqa
+
+auto fmt::formatter<cxxqa::Process>::format(const cxxqa::Process& self, format_context& ctx) const -> format_context::iterator
+{
+  auto out = fmt::format_to(ctx.out(), "\"{}\"", self.exe());
+  for (const auto& arg : self.args())
+  {
+    out = fmt::format_to(out, " \"{}\"", arg);
+  }
+  return out;
+}

@@ -13,9 +13,9 @@
 #include <vector>
 
 // 3rd
-#include <fmt/base.h>
 
 // local
+#include <cxxqa/util/fmt.hpp>
 
 // namespace
 namespace cxxqa {
@@ -60,9 +60,10 @@ C:/Users/vagrant/My Documents/diagnostic.cpp:10:8: warning: variable ‘parse’
 
   static auto parse_all(std::string_view str) -> std::vector<Diagnostic>;
 };
+
 }  // namespace cxxqa
 
 template <>
-struct fmt::formatter<cxxqa::Diagnostic> : formatter<std::string_view> {
+struct cxxqa::fmt::formatter<cxxqa::Diagnostic> : formatter<std::string_view> {
   auto format(const cxxqa::Diagnostic& self, format_context& ctx) const -> format_context::iterator;
 };

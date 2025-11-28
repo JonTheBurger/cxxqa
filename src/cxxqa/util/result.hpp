@@ -21,7 +21,7 @@ Error propagation machinery. In summary:
 #include <boost/outcome/experimental/status_result.hpp>
 
 // local
-#include <fmt/format.h>
+#include <cxxqa/util/fmt.hpp>
 
 // namespace
 namespace cxxqa {
@@ -96,6 +96,6 @@ auto err(EC&& error)
 
 /// Format ErrorMessage
 template <>
-struct fmt::formatter<cxxqa::ErrorMessage> : formatter<std::string_view> {
+struct cxxqa::fmt::formatter<cxxqa::ErrorMessage> : formatter<std::string_view> {
   auto format(const cxxqa::ErrorMessage& self, format_context& ctx) const -> format_context::iterator;
 };

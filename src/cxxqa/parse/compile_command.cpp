@@ -95,3 +95,8 @@ auto CompileCommand::to_string() const -> std::string
 }
 
 }  // namespace cxxqa
+
+auto fmt::formatter<cxxqa::CompileCommand>::format(const cxxqa::CompileCommand& self, format_context& ctx) const -> format_context::iterator
+{
+  return fmt::format_to(ctx.out(), "{}", self.to_string());
+}
