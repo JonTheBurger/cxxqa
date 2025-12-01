@@ -8,13 +8,17 @@
 
 // local
 #include <cxxqa/parse/sarif.hpp>
-#include <cxxqa/util/copy_ptr.hpp>
 #include <cxxqa/util/fmt.hpp>
 #include <cxxqa/util/json.hpp>
 #include <cxxqa/util/result.hpp>
+#include <glaze/json/generic.hpp>
 
 /* Types
  ******************************************************************************/
+struct Item {
+  std::string name;
+  std::optional<std::flat_map<std::string, glz::generic>> properties;
+};
 
 /* Functions
  ******************************************************************************/
@@ -22,39 +26,12 @@ auto main() -> int
 {
   using namespace cxxqa;
 
-  Sarif sarif;
-  sarif::Run run{
-    .tool{
-      .driver{
-        .name = "CodeScanner",
-      }
-    }
-  };
-  run.results.emplace();
-  run.results.value().push_back(sarif::Result{
-    .ruleId = "no-unused-vars",
-    .level = sarif::Level::error,
-    .message = {
-      .text = "'x' is assigned a value but never used.",
-    },
-    .locations = std::vector<sarif::Location>{
-      sarif::Location{
-        .physicalLocation = sarif::PhysicalLocation{
-          .artifactLocation = sarif::ArtifactLocation{
-            .uri = "file:///path/to/file.cpp",
-          },
-          .region = sarif::Region{
-            .startLine = 10,
-            .startColumn = 5,
-          },
-        },
-      },
-    },
-  });
+  Item item;
+  item.name = "Alice";
+  item.properties.emplace();
+  item.properties.value()["foo"] = "bar";
 
-  sarif.runs.push_back(std::move(run));
-
-  fmt::println("{}", sarif);
+  fmt::println("{}", json::write_json(item).value_or(""));
 
   return 0;
 }

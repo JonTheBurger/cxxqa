@@ -115,7 +115,7 @@ struct Process::Impl {
 Process::Process(std::string_view executable)
   : _self{ std::make_unique<Process::Impl>() }
 {
-  _self->exe = proc::environment::find_executable(executable);
+  _self->exe = proc::environment::find_executable(executable).string();
   _self->pwd = std::filesystem::current_path().string();
 }
 

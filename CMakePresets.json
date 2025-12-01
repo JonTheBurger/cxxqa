@@ -14,7 +14,7 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic",
-        "CMAKE_LINKER_TYPE": "mold",
+        "CMAKE_LINKER_TYPE": "MOLD",
         "BUILD_TESTING": "OFF"
       }
     },

@@ -21,43 +21,39 @@ namespace cxxqa {
 /* Types
  ******************************************************************************/
 /** Heap-allocated optional.
- * Use this type instead of `std::optional` when `T` is very large an often not active.
+ * Use this type instead of `std::optional` when `T` is very large and often not active.
  */
 template <typename T>
 class heap_optional {
-private:
-  T* _ptr;
-
 public:
   constexpr heap_optional() noexcept
     : _ptr{ nullptr }
   {
   }
 
-  constexpr heap_optional(std::nullptr_t) noexcept
+  explicit(false) constexpr heap_optional(std::nullopt_t /* none */) noexcept
     : _ptr{ nullptr }
   {
   }
 
-  heap_optional(const T& value)
+  explicit(false) heap_optional(const T& value)
     : _ptr{ new T(value) }
   {
   }
 
-  heap_optional(T&& value)
+  explicit(false) heap_optional(T&& value)
     : _ptr{ new T(std::move(value)) }
   {
   }
 
   heap_optional(const heap_optional& other)
-    : _ptr{ other._ptr ? new T(*other._ptr) : nullptr }
+    : _ptr{ (other._ptr) ? (new T(*other._ptr)) : (nullptr) }
   {
   }
 
   heap_optional(heap_optional&& other) noexcept
-    : _ptr{ other._ptr }
+    : _ptr{ std::exchange(other._ptr, nullptr) }
   {
-    other._ptr = nullptr;
   }
 
   ~heap_optional()
@@ -69,8 +65,8 @@ public:
   {
     if (this != &other)
     {
-      delete _ptr;
-      _ptr = other._ptr ? new T(*other._ptr) : nullptr;
+      heap_optional tmp{other};
+      std::swap(*this, tmp);
     }
     return *this;
   }
@@ -79,40 +75,39 @@ public:
   {
     if (this != &other)
     {
-      delete _ptr;
-      _ptr       = other._ptr;
-      other._ptr = nullptr;
+      heap_optional tmp{std::move(other)};
+      std::swap(*this, tmp);
     }
     return *this;
   }
 
   auto operator=(const T& value) -> heap_optional&
   {
-    if (_ptr)
+    if (_ptr == nullptr)
     {
-      *_ptr = value;
+      _ptr = new T(value);
     }
     else
     {
-      _ptr = new T(value);
+      *_ptr = value;
     }
     return *this;
   }
 
   auto operator=(T&& value) -> heap_optional&
   {
-    if (_ptr)
+    if (_ptr == nullptr)
     {
-      *_ptr = std::move(value);
+      _ptr = new T(std::move(value));
     }
     else
     {
-      _ptr = new T(std::move(value));
+      *_ptr = std::move(value);
     }
     return *this;
   }
 
-  auto operator=(std::nullptr_t) noexcept -> heap_optional&
+  auto operator=(std::nullopt_t /* none */) noexcept -> heap_optional&
   {
     reset();
     return *this;
@@ -121,9 +116,8 @@ public:
   template <typename... Args>
   auto emplace(Args&&... args) -> T&
   {
-    // TODO can throw
-    delete _ptr;
-    _ptr = new T(std::forward<Args>(args)...);
+    heap_optional tmp{std::forward<Args>(args)...};
+    std::swap(*this, tmp);
     return *_ptr;
   }
 
@@ -133,7 +127,7 @@ public:
     _ptr = nullptr;
   }
 
-  constexpr bool has_value() const noexcept
+  constexpr auto has_value() const noexcept -> bool
   {
     return _ptr != nullptr;
   }
@@ -143,60 +137,18 @@ public:
     return has_value();
   }
 
-  auto value() & -> T&
+  auto value(this auto&& self) -> auto&&
   {
-    if (_ptr == nullptr)
+    if (self._ptr == nullptr)
     {
       throw std::bad_optional_access();
     }
-    return *_ptr;
+    return *std::forward_like<decltype(self)>(self)._ptr;
   }
 
-  auto value() const& -> const T&
+  auto operator*(this auto&& self) -> auto&&
   {
-    if (_ptr == nullptr)
-    {
-      throw std::bad_optional_access();
-    }
-    return *_ptr;
-  }
-
-  auto value() && -> T&&
-  {
-    if (_ptr == nullptr)
-    {
-      throw std::bad_optional_access();
-    }
-    return std::move(*_ptr);
-  }
-
-  auto value() const&& -> const T&&
-  {
-    if (_ptr == nullptr)
-    {
-      throw std::bad_optional_access();
-    }
-    return std::move(*_ptr);
-  }
-
-  auto operator*() & -> T&
-  {
-    return *_ptr;
-  }
-
-  auto operator*() const& -> const T&
-  {
-    return *_ptr;
-  }
-
-  auto operator*() && -> T&&
-  {
-    return std::move(*_ptr);
-  }
-
-  auto operator*() const&& -> const T&&
-  {
-    return std::move(*_ptr);
+    return std::forward_like<decltype(self)>(*self._ptr);
   }
 
   auto operator->() noexcept -> T*
@@ -209,22 +161,19 @@ public:
     return _ptr;
   }
 
-  template <typename U>
-  constexpr auto value_or(U&& default_value) const& -> T
+  template <typename Self, typename U>
+  constexpr auto value_or(this Self&& self, U&& default_value) -> T
   {
-    return _ptr ? *_ptr : static_cast<T>(std::forward<U>(default_value));
-  }
-
-  template <typename U>
-  constexpr auto value_or(U&& default_value) && -> T
-  {
-    return _ptr ? std::move(*_ptr) : static_cast<T>(std::forward<U>(default_value));
+    return (self._ptr) ? (*std::forward<Self>(self)) : (T{std::forward<U>(default_value)});
   }
 
   void swap(heap_optional& other) noexcept
   {
     std::swap(_ptr, other._ptr);
   }
+
+private:
+  T* _ptr;
 };
 
 /* Functions
@@ -264,25 +213,25 @@ auto operator!=(const heap_optional<T>& lhs, const heap_optional<U>& rhs) -> boo
 }
 
 template <typename T>
-auto operator==(const heap_optional<T>& ptr, std::nullptr_t) noexcept -> bool
+auto operator==(const heap_optional<T>& ptr, std::nullopt_t /* none */) noexcept -> bool
 {
   return !ptr.has_value();
 }
 
 template <typename T>
-auto operator==(std::nullptr_t, const heap_optional<T>& ptr) noexcept -> bool
+auto operator==(std::nullopt_t /* none */, const heap_optional<T>& ptr) noexcept -> bool
 {
   return !ptr.has_value();
 }
 
 template <typename T>
-auto operator!=(const heap_optional<T>& ptr, std::nullptr_t) noexcept -> bool
+auto operator!=(const heap_optional<T>& ptr, std::nullopt_t /* none */) noexcept -> bool
 {
   return ptr.has_value();
 }
 
 template <typename T>
-auto operator!=(std::nullptr_t, const heap_optional<T>& ptr) noexcept -> bool
+auto operator!=(std::nullopt_t /* none */, const heap_optional<T>& ptr) noexcept -> bool
 {
   return ptr.has_value();
 }

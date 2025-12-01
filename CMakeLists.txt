@@ -21,7 +21,6 @@ target_sources(cxxqa.core
     src/cxxqa/parse/parser.cpp
     src/cxxqa/parse/sarif.cpp
     src/cxxqa/tool/git.cpp
-    src/cxxqa/util/heap_optional.cpp
     src/cxxqa/util/proc.cpp
     src/cxxqa/util/result.cpp
   PUBLIC

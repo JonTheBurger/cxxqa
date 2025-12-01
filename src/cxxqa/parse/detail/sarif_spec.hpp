@@ -5,9 +5,9 @@
  ******************************************************************************/
 // std
 #include <cstdint>
+#include <flat_map>
 #include <optional>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 // 3rd
@@ -32,6 +32,9 @@ constexpr size_t           HEAP_OPTION_THRESHOLD            = 32;
  ******************************************************************************/
 template <typename T>
 using optional_t = std::conditional_t<(sizeof(T) > HEAP_OPTION_THRESHOLD), heap_optional<T>, std::optional<T>>;
+
+template <typename Key, typename Value>
+using map_t = std::flat_map<Key, Value>;
 
 /// The role or roles played by the artifact in the analysis.
 enum class Role : uint8_t {
@@ -102,8 +105,7 @@ struct PropertyBag {
   optional_t<std::vector<std::string>> tags;
 
   /// Additional properties
-  optional_t<std::unordered_map<std::string, std::string>> additionalProperties;
-  // TODO: glz::generic
+  optional_t<map_t<std::string, glz::generic>> additionalProperties;
 };
 
 /// Identifies a particular toolComponent object, either the driver or an extension.
@@ -312,7 +314,7 @@ struct Artifact {
   optional_t<std::string> sourceLanguage;
 
   /// A dictionary, each of whose keys is the name of a hash function and each of whose values is the hashed value of the artifact produced by the specified hash function.
-  optional_t<std::unordered_map<std::string, std::string>> hashes;
+  optional_t<map_t<std::string, std::string>> hashes;
 
   /// The Coordinated Universal Time (UTC) date and time at which the artifact was most recently modified. See "Date/time properties" in the SARIF spec for the required format.
   optional_t<std::string> lastModifiedTimeUtc;
@@ -518,7 +520,7 @@ struct EdgeTraversal {
   optional_t<Message> message;
 
   /// The values of relevant expressions after the edge has been traversed.
-  optional_t<std::unordered_map<std::string, MultiformatMessageString>> finalState;
+  optional_t<map_t<std::string, MultiformatMessageString>> finalState;
 
   /// The number of edge traversals necessary to return from a nested graph.
   optional_t<int32_t> stepOverEdgeCount;
@@ -541,10 +543,10 @@ struct GraphTraversal {
   optional_t<Message> description;
 
   /// Values of relevant expressions at the start of the graph traversal that may change during graph traversal.
-  optional_t<std::unordered_map<std::string, MultiformatMessageString>> initialState;
+  optional_t<map_t<std::string, MultiformatMessageString>> initialState;
 
   /// Values of relevant expressions at the start of the graph traversal that remain constant for the graph traversal.
-  optional_t<std::unordered_map<std::string, MultiformatMessageString>> immutableState;
+  optional_t<map_t<std::string, MultiformatMessageString>> immutableState;
 
   /// The sequences of edges traversed by this graph traversal.
   optional_t<std::vector<EdgeTraversal>> edgeTraversals;
@@ -571,10 +573,10 @@ struct WebRequest {
   optional_t<std::string> method;
 
   /// The request headers.
-  optional_t<std::unordered_map<std::string, std::string>> headers;
+  optional_t<map_t<std::string, std::string>> headers;
 
   /// The request parameters.
-  optional_t<std::unordered_map<std::string, std::string>> parameters;
+  optional_t<map_t<std::string, std::string>> parameters;
 
   /// The body of the request.
   optional_t<ArtifactContent> body;
@@ -601,7 +603,7 @@ struct WebResponse {
   optional_t<std::string> reasonPhrase;
 
   /// The response headers.
-  optional_t<std::unordered_map<std::string, std::string>> headers;
+  optional_t<map_t<std::string, std::string>> headers;
 
   /// The body of the response.
   optional_t<ArtifactContent> body;
@@ -703,7 +705,7 @@ struct ThreadFlowLocation {
   optional_t<std::string> module;
 
   /// A dictionary, each of whose keys specifies a variable or expression, the associated value of which represents the variable or expression value.
-  optional_t<std::unordered_map<std::string, MultiformatMessageString>> state;
+  optional_t<map_t<std::string, MultiformatMessageString>> state;
 
   /// An integer representing a containment hierarchy within the thread flow.
   optional_t<int32_t> nestingLevel;
@@ -736,10 +738,10 @@ struct ThreadFlow {
   optional_t<Message> message;
 
   /// Values of relevant expressions at the start of the thread flow that may change during thread flow execution.
-  optional_t<std::unordered_map<std::string, MultiformatMessageString>> initialState;
+  optional_t<map_t<std::string, MultiformatMessageString>> initialState;
 
   /// Values of relevant expressions at the start of the thread flow that remain constant.
-  optional_t<std::unordered_map<std::string, MultiformatMessageString>> immutableState;
+  optional_t<map_t<std::string, MultiformatMessageString>> immutableState;
 
   /// A temporally ordered array of 'threadFlowLocation' objects.
   std::vector<ThreadFlowLocation> locations;
@@ -876,7 +878,7 @@ struct ReportingDescriptor {
   optional_t<MultiformatMessageString> fullDescription;
 
   /// A set of name/value pairs with arbitrary names. Each value is a multiformatMessageString object.
-  optional_t<std::unordered_map<std::string, MultiformatMessageString>> messageStrings;
+  optional_t<map_t<std::string, MultiformatMessageString>> messageStrings;
 
   /// Default reporting configuration information.
   optional_t<ReportingConfiguration> defaultConfiguration;
@@ -941,10 +943,10 @@ struct Result {
   optional_t<uint32_t> occurrenceCount;
 
   /// A set of strings that contribute to the stable, unique identity of the result.
-  optional_t<std::unordered_map<std::string, std::string>> partialFingerprints;
+  optional_t<map_t<std::string, std::string>> partialFingerprints;
 
   /// A set of strings each of which individually defines a stable, unique identity for the result.
-  optional_t<std::unordered_map<std::string, std::string>> fingerprints;
+  optional_t<map_t<std::string, std::string>> fingerprints;
 
   /// An array of 'stack' objects relevant to the result.
   optional_t<std::vector<Stack>> stacks;
@@ -1095,7 +1097,7 @@ struct ToolComponent {
   optional_t<std::string> informationUri;
 
   /// A dictionary of message strings, keyed by resource identifier.
-  optional_t<std::unordered_map<std::string, MultiformatMessageString>> globalMessageStrings;
+  optional_t<map_t<std::string, MultiformatMessageString>> globalMessageStrings;
 
   /// Reporting descriptors relevant to notifications.
   optional_t<std::vector<ReportingDescriptor>> notifications;
@@ -1279,7 +1281,7 @@ struct Invocation {
   optional_t<ArtifactLocation> workingDirectory;
 
   /// The environment variables associated with the analysis tool process, expressed as key/value pairs.
-  optional_t<std::unordered_map<std::string, std::string>> environmentVariables;
+  optional_t<map_t<std::string, std::string>> environmentVariables;
 
   /// A file containing the standard input stream to the process that was invoked.
   optional_t<ArtifactLocation> stdin;
@@ -1351,7 +1353,7 @@ struct Run {
   optional_t<std::vector<VersionControlDetails>> versionControlProvenance;
 
   /// The artifact location specified by each uriBaseId symbol on the machine where the tool originally ran.
-  optional_t<std::unordered_map<std::string, ArtifactLocation>> originalUriBaseIds;
+  optional_t<map_t<std::string, ArtifactLocation>> originalUriBaseIds;
 
   /// An array of artifact objects relevant to the run.
   optional_t<std::vector<Artifact>> artifacts;

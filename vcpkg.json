@@ -22,5 +22,13 @@
         "catch2"
       ]
     }
+  },
+  "vcpkg-configuration": {
+    "default-registry": {
+      "kind": "git",
+      "repository": "https://github.com/microsoft/vcpkg.git",
+      "$comment": "2025-11-29 (no tag)",
+      "baseline": "5bf0c55239da398b8c6f450818c9e28d36bf9966"
+    }
   }
 }
