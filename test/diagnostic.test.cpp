@@ -6,7 +6,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 // local
-#include <cxxqa/parse/diagnostic.hpp>
+#include <sharif/parse/diagnostic.hpp>
 
 /* Tests
  ******************************************************************************/
@@ -20,7 +20,7 @@ C:/Users/vagrant/My Documents/serif.cpp:324:8: error: Missing attribute [[nodisc
       |   ^~~~~
 )";
 
-  auto diagnostics = cxxqa::Diagnostic::parse_all(message);
+  auto diagnostics = sharif::Diagnostic::parse_all(message);
   REQUIRE(diagnostics.size() > 0);
 
   REQUIRE(diagnostics[0].file == "C:/Users/vagrant/My Documents/diagnostic.cpp");
@@ -55,7 +55,7 @@ C:/Users/vagrant/My Documents/serif.cpp:324:8: error: Missing attribute [[nodisc
       |   ^~~~~
 )";
 
-  auto diagnostic = cxxqa::Diagnostic::from_string(message);
+  auto diagnostic = sharif::Diagnostic::from_string(message);
   REQUIRE(diagnostic.has_value());
 
   REQUIRE(diagnostic->file == "C:/Users/vagrant/My Documents/diagnostic.cpp");
@@ -76,7 +76,7 @@ SCENARIO("Full Diagnostic")  // NOLINT
       |        ^~~~~
 )";
 
-  auto diagnostic = cxxqa::Diagnostic::from_string(message);
+  auto diagnostic = sharif::Diagnostic::from_string(message);
   REQUIRE(diagnostic.has_value());
 
   REQUIRE(diagnostic->file == "C:/Users/vagrant/My Documents/diagnostic.cpp");
@@ -94,7 +94,7 @@ SCENARIO("Minimal Diagnostic")  // NOLINT
 {
   std::string_view message = "/home/vagrant/foo.cxx: something went wrong";
 
-  auto diagnostic = cxxqa::Diagnostic::from_string(message);
+  auto diagnostic = sharif::Diagnostic::from_string(message);
   REQUIRE(diagnostic.has_value());
 
   REQUIRE(diagnostic->file == "/home/vagrant/foo.cxx");
@@ -105,7 +105,7 @@ SCENARIO("Diagnostic with line")  // NOLINT
 {
   std::string_view message = R"(\\net\vagrant\foo.c:375: something went wrong)";
 
-  auto diagnostic = cxxqa::Diagnostic::from_string(message);
+  auto diagnostic = sharif::Diagnostic::from_string(message);
   REQUIRE(diagnostic.has_value());
 
   REQUIRE(diagnostic->file == "\\\\net\\vagrant\\foo.c");
@@ -117,7 +117,7 @@ SCENARIO("Diagnostic with column")  // NOLINT
 {
   std::string_view message = R"(\\net\vagrant\foo.c:375:12: something went wrong)";
 
-  auto diagnostic = cxxqa::Diagnostic::from_string(message);
+  auto diagnostic = sharif::Diagnostic::from_string(message);
   REQUIRE(diagnostic.has_value());
 
   REQUIRE(diagnostic->file == "\\\\net\\vagrant\\foo.c");
@@ -130,7 +130,7 @@ SCENARIO("Diagnostic with severity")  // NOLINT
 {
   std::string_view message = R"(\\net\vagrant\foo.c:375: warning: something went wrong)";
 
-  auto diagnostic = cxxqa::Diagnostic::from_string(message);
+  auto diagnostic = sharif::Diagnostic::from_string(message);
   REQUIRE(diagnostic.has_value());
 
   REQUIRE(diagnostic->file == "\\\\net\\vagrant\\foo.c");
@@ -143,7 +143,7 @@ SCENARIO("Diagnostic with severity only")  // NOLINT
 {
   std::string_view message = R"(\\net\vagrant\foo.c: warning: something went wrong)";
 
-  auto diagnostic = cxxqa::Diagnostic::from_string(message);
+  auto diagnostic = sharif::Diagnostic::from_string(message);
   REQUIRE(diagnostic.has_value());
 
   REQUIRE(diagnostic->file == "\\\\net\\vagrant\\foo.c");
@@ -155,7 +155,7 @@ SCENARIO("Diagnostic spaces in path")  // NOLINT
 {
   std::string_view message = R"(C:\Program Files\foo.c: fatal error: something went wrong [-Wsomething])";
 
-  auto diagnostic = cxxqa::Diagnostic::from_string(message);
+  auto diagnostic = sharif::Diagnostic::from_string(message);
   REQUIRE(diagnostic.has_value());
 
   REQUIRE(diagnostic->file == "C:\\Program Files\\foo.c");
@@ -168,7 +168,7 @@ SCENARIO("Diagnostic with brackets")  // NOLINT
 {
   std::string_view message = R"(C:\Program Files\foo.c: error: operator[] should have [[nodiscard]] [-Wsomething])";
 
-  auto diagnostic = cxxqa::Diagnostic::from_string(message);
+  auto diagnostic = sharif::Diagnostic::from_string(message);
   REQUIRE(diagnostic.has_value());
 
   REQUIRE(diagnostic->file == "C:\\Program Files\\foo.c");

@@ -5,27 +5,15 @@
 /* Includes
  ******************************************************************************/
 // std
-#include <exception>
 
 // 3rd
-#include <sharif/core/app.hpp>
-#include <sharif/parse/cppcheck.hpp>
-#include <sharif/util/result.hpp>
 
 // local
+#include <sharif/util/result.hpp>
 
 /* Functions
  ******************************************************************************/
-auto main(int argc, char** argv) -> int
+auto fmt::formatter<sharif::ErrorMessage>::format(const sharif::ErrorMessage& self, format_context& ctx) const -> format_context::iterator
 {
-  try
-  {
-    return sharif::App{ argc, argv }.exec();
-  }
-  catch (const std::exception& ex)
-  {
-    std::puts(ex.what());
-  }
-
-  return 0;
+  return formatter<std::string_view>::format({ self.c_str(), self.size() }, ctx);
 }

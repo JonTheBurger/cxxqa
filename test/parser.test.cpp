@@ -6,7 +6,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 // local
-#include <cxxqa/parse/parser.hpp>
+#include <sharif/parse/parser.hpp>
 
 /* Tests
  ******************************************************************************/
@@ -14,24 +14,24 @@ SCENARIO("to_lower", "[parser]")  // NOLINT
 {
   SECTION("Uppercase letters are lowered")
   {
-    REQUIRE('a' == cxxqa::to_lower('A'));
-    REQUIRE('s' == cxxqa::to_lower('S'));
-    REQUIRE('z' == cxxqa::to_lower('Z'));
+    REQUIRE('a' == sharif::to_lower('A'));
+    REQUIRE('s' == sharif::to_lower('S'));
+    REQUIRE('z' == sharif::to_lower('Z'));
   }
 
   SECTION("Lowercase letters are untouched")
   {
-    REQUIRE('a' == cxxqa::to_lower('a'));
-    REQUIRE('s' == cxxqa::to_lower('s'));
-    REQUIRE('z' == cxxqa::to_lower('z'));
+    REQUIRE('a' == sharif::to_lower('a'));
+    REQUIRE('s' == sharif::to_lower('s'));
+    REQUIRE('z' == sharif::to_lower('z'));
   }
 
   SECTION("Non-letters are untouched")
   {
-    REQUIRE('@' == cxxqa::to_lower('@'));
-    REQUIRE('[' == cxxqa::to_lower('['));
-    REQUIRE('`' == cxxqa::to_lower('`'));
-    REQUIRE('{' == cxxqa::to_lower('{'));
+    REQUIRE('@' == sharif::to_lower('@'));
+    REQUIRE('[' == sharif::to_lower('['));
+    REQUIRE('`' == sharif::to_lower('`'));
+    REQUIRE('{' == sharif::to_lower('{'));
   }
 }
 
@@ -39,30 +39,30 @@ SCENARIO("to_upper", "[parser]")  // NOLINT
 {
   SECTION("Uppercase letters are untouched")
   {
-    REQUIRE('A' == cxxqa::to_upper('A'));
-    REQUIRE('S' == cxxqa::to_upper('S'));
-    REQUIRE('Z' == cxxqa::to_upper('Z'));
+    REQUIRE('A' == sharif::to_upper('A'));
+    REQUIRE('S' == sharif::to_upper('S'));
+    REQUIRE('Z' == sharif::to_upper('Z'));
   }
 
   SECTION("Lowercase letters are uppered")
   {
-    REQUIRE('A' == cxxqa::to_upper('a'));
-    REQUIRE('S' == cxxqa::to_upper('s'));
-    REQUIRE('Z' == cxxqa::to_upper('z'));
+    REQUIRE('A' == sharif::to_upper('a'));
+    REQUIRE('S' == sharif::to_upper('s'));
+    REQUIRE('Z' == sharif::to_upper('z'));
   }
 
   SECTION("Non-letters are untouched")
   {
-    REQUIRE('@' == cxxqa::to_upper('@'));
-    REQUIRE('[' == cxxqa::to_upper('['));
-    REQUIRE('`' == cxxqa::to_upper('`'));
-    REQUIRE('{' == cxxqa::to_upper('{'));
+    REQUIRE('@' == sharif::to_upper('@'));
+    REQUIRE('[' == sharif::to_upper('['));
+    REQUIRE('`' == sharif::to_upper('`'));
+    REQUIRE('{' == sharif::to_upper('{'));
   }
 }
 
 SCENARIO("parse.until...", "[until]")  // NOLINT
 {
-  auto parse = cxxqa::Parser("foo/bar.h");
+  auto parse = sharif::Parser("foo/bar.h");
 
   GIVEN(parse.string())
   {
@@ -115,7 +115,7 @@ SCENARIO("parse.until...", "[until]")  // NOLINT
 
 SCENARIO("parse.skip...", "[skip]")  // NOLINT
 {
-  auto parse = cxxqa::Parser("foo/bar.h");
+  auto parse = sharif::Parser("foo/bar.h");
 
   GIVEN(parse.string())
   {
@@ -141,7 +141,7 @@ SCENARIO("parse.skip...", "[skip]")  // NOLINT
 
 SCENARIO("parse.to_newline", "[to_newline]")  // NOLINT
 {
-  auto parse = cxxqa::Parser("Hello\r\nWorld\nAnd\rGoodbye\n\n");
+  auto parse = sharif::Parser("Hello\r\nWorld\nAnd\rGoodbye\n\n");
 
   auto str = parse.to_newline().consume_str();
   REQUIRE("Hello" == str);
@@ -161,7 +161,7 @@ SCENARIO("parse.to_newline", "[to_newline]")  // NOLINT
 
 SCENARIO("Parser", "[example]")  // NOLINT
 {
-  auto parse = cxxqa::Parser("test-labelled-ranges.c:9:6: error: mismatching types: 'int' and 'const char *'");
+  auto parse = sharif::Parser("test-labelled-ranges.c:9:6: error: mismatching types: 'int' and 'const char *'");
 
   auto str = parse.until_and_past(":").and_rtrim().consume_str();
   REQUIRE("test-labelled-ranges.c" == str);
