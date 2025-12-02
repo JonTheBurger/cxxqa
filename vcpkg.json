@@ -7,13 +7,12 @@
     "cli11",
     "fmt",
     "glaze",
+    "outcome",
     "pugixml",
     "re2",
     "spdlog",
-    {
-      "name": "vcpkg-cmake",
-      "host": true
-    }
+    "status-code",
+    "uvw"
   ],
   "features": {
     "test": {

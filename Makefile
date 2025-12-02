@@ -45,8 +45,9 @@ distclean: ## Resets the repo back to its state at checkout
 
 setup: .venv ## Runs once per-clone setup steps
 
-# debug: ## Builds the Debug configuration
-# 	cmake --workflow --preset=debug
+debug: ## Builds the Debug configuration
+	cmake --preset=debug
+	cmake --build --preset=debug
 #
 # test: ## Runs tests
 # 	cmake --workflow --preset=test

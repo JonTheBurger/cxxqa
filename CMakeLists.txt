@@ -9,6 +9,7 @@ find_package(fmt REQUIRED)
 find_package(re2 REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(pugixml REQUIRED)
+find_package(uvw REQUIRED)
 
 add_library(cxxqa.core)
 target_sources(cxxqa.core
@@ -57,7 +58,7 @@ target_link_libraries(cxxqa PRIVATE cxxqa.core)
 install(TARGETS cxxqa cxxqa.core)
 
 add_executable(scratch src/scratch.cpp)
-target_link_libraries(scratch PRIVATE cxxqa.core)
+target_link_libraries(scratch PRIVATE cxxqa.core uvw::uvw)
 
 if(BUILD_TESTING)
   add_subdirectory(test)

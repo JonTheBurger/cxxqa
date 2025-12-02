@@ -3,35 +3,74 @@
 /* Includes
  ******************************************************************************/
 // std
+#include <iostream>
 
 // 3rd
+#include <uvw.hpp>
+#include <uvw/emitter.h>
+#include <uvw/loop.h>
+#include <uvw/pipe.h>
+#include <uvw/process.h>
+#include <uvw/stream.h>
 
 // local
-#include <cxxqa/parse/sarif.hpp>
-#include <cxxqa/util/fmt.hpp>
-#include <cxxqa/util/json.hpp>
-#include <cxxqa/util/result.hpp>
-#include <glaze/json/generic.hpp>
 
 /* Types
  ******************************************************************************/
-struct Item {
-  std::string name;
-  std::optional<std::flat_map<std::string, glz::generic>> properties;
-};
 
 /* Functions
  ******************************************************************************/
 auto main() -> int
 {
-  using namespace cxxqa;
+  auto loop = uvw::loop::get_default();
+  uvw::process_handle::disable_stdio_inheritance();
 
-  Item item;
-  item.name = "Alice";
-  item.properties.emplace();
-  item.properties.value()["foo"] = "bar";
+  auto proc = loop->resource<uvw::process_handle>();
+  proc->flags(
+    uvw::process_handle::process_flags::WINDOWS_HIDE |
+    uvw::process_handle::process_flags::WINDOWS_HIDE_CONSOLE |
+    uvw::process_handle::process_flags::WINDOWS_HIDE_GUI
+  );
 
-  fmt::println("{}", json::write_json(item).value_or(""));
+  auto out = loop->resource<uvw::pipe_handle>();
+  out->on<uvw::data_event>([](const uvw::data_event& event, uvw::pipe_handle&) -> void {
+    std::cout.write(event.data.get(), event.length);
+    std::cout.flush();
+  });
+
+  out->on<uvw::end_event>([](const uvw::end_event&, uvw::pipe_handle& handle) -> void {
+    std::cout << "\n[Stream ended]" << '\n';
+    handle.close();
+  });
+
+  proc->on<uvw::exit_event>([](const uvw::exit_event& event, uvw::process_handle& handle) -> void {
+    std::cout << "Process exited with code: " << event.status << '\n';
+    handle.close();
+  });
+
+  proc->on<uvw::error_event>([](const uvw::error_event& event, uvw::process_handle&) -> void {
+    std::cerr << "Process error: " << event.what() << '\n';
+  });
+
+  char* args[] = {
+    const_cast<char*>("tree"),
+    const_cast<char*>("/home/jon"),
+    nullptr
+  };
+
+  proc->stdio({}, uvw::process_handle::stdio_flags::IGNORE_STREAM);
+  proc->stdio(
+    *out,
+    uvw::process_handle::stdio_flags::CREATE_PIPE |
+      uvw::process_handle::stdio_flags::WRITABLE_PIPE |
+      uvw::process_handle::stdio_flags::READABLE_PIPE
+  );
+
+  proc->spawn(args[0], args);
+
+  out->read();
+
+  loop->run();
 
   return 0;
 }

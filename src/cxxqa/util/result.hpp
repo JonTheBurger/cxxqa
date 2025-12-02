@@ -11,6 +11,7 @@ Error propagation machinery. In summary:
 - `Outcome<T>` is a `Result<T>` that can also marshal an exception.
  ******************************************************************************/
 #pragma once
+// TODO: use expected + status_code instead?
 
 /* Includes
  ******************************************************************************/
